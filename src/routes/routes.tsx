@@ -1,9 +1,8 @@
 import { createBrowserRouter, RouterProvider } from "react-router-dom";
 import { NavBar } from "../components/NavBar";
-import App from "../App";
-
 import { Login } from "../pages/LogIn";
 import { ProtectedRoute } from "./ProtectedRoute";
+import { Dashboard } from "../pages/DashBoard";
 
 const router = createBrowserRouter([
   {
@@ -14,7 +13,7 @@ const router = createBrowserRouter([
         path: "/",
         element: (
           <ProtectedRoute>
-            <App />
+            <Dashboard />
           </ProtectedRoute>
         ),
       },

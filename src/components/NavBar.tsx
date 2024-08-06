@@ -8,9 +8,15 @@ export const NavBar = () => {
     setToSignedIn,
     setToSignedOut,
     supabaseClient: supabase,
+    isSignedIn,
   } = useAuthContext();
   const [dbSubscription, setDbSubscription] = useState<Subscription | null>();
   const navigate = useNavigate();
+
+  const logout = () => {
+    supabase?.auth.signOut();
+    setToSignedOut();
+  };
 
   useEffect(() => {
     if (supabase) {
@@ -42,7 +48,10 @@ export const NavBar = () => {
 
   return (
     <div>
-      <div>Navbar</div>
+      <div>
+        <div>Navbar</div>
+        {isSignedIn && <button onClick={logout}>logout</button>}
+      </div>
       <Outlet />
     </div>
   );
