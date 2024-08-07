@@ -30,7 +30,7 @@ export const Dashboard = () => {
   return (
     <div className={styles.dashboardWrapper}>
       {isPortalOpen && (
-        <Portal>
+        <Portal closeModal={closeModal}>
           <SaveBoardModal
             supabaseClient={supabaseClient}
             setIsLoading={setIsLoading}
