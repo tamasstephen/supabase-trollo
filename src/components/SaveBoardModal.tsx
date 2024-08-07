@@ -2,6 +2,7 @@ import { SupabaseClient } from "@supabase/supabase-js";
 import { saveBoard } from "../api/api";
 import { BoardsFormElement } from "../types/FormTypes";
 import { Dispatch } from "react";
+import CloseIcon from "../assets/close.svg?react";
 import styles from "../styles/SaveBoardModal.module.scss";
 
 interface SaveBoardModalProps {
@@ -19,7 +20,10 @@ export const SaveBoardModal = ({
 }: SaveBoardModalProps) => {
   return (
     <div className={styles.saveBoardWrapper}>
-      <button onClick={() => closeModal()}>Close Modal</button>
+      <button className={styles.close} onClick={() => closeModal()}>
+        <CloseIcon />
+      </button>
+      <h3>Create a board</h3>
       <form
         onSubmit={(e: React.FormEvent<BoardsFormElement>) =>
           saveBoard(supabaseClient, e, setIsLoading, setFetchError)
@@ -35,10 +39,14 @@ export const SaveBoardModal = ({
           />
         </fieldset>
         <fieldset>
-          <label htmlFor="boardName">Board title</label>
-          <input id="boardName" type="text" />
+          <label htmlFor="boardName">
+            Board title <span className={styles.mandatory}>*</span>
+          </label>
+          <input className={styles.input} id="boardName" type="text" />
         </fieldset>
-        <button type="submit">Save Table</button>
+        <button className={styles.submit} type="submit">
+          Save Table
+        </button>
       </form>
     </div>
   );

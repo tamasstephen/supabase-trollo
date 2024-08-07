@@ -1,3 +1,5 @@
+@import "./base.scss";
+
 .saveBoardWrapper {
   transform: translateY(-20%);
   display: flex;
@@ -8,10 +10,77 @@
   background-color: white;
   border-radius: 5px;
   box-shadow: 0 0 8px 4px rgba(0, 0, 0, 0.05);
+  position: relative;
 }
 
 fieldset {
   display: flex;
   flex-direction: column;
   border: none;
+  padding: 0;
+
+  label {
+    padding-bottom: 0.25rem;
+    font-size: 0.825rem;
+    font-weight: 500;
+
+    .mandatory {
+      color: red;
+    }
+  }
+}
+
+fieldset:nth-child(2) {
+  padding-bottom: 1.5rem;
+  label {
+    padding-top: 1rem;
+  }
+}
+
+.close {
+  position: absolute;
+  top: 1rem;
+  right: 1rem;
+  padding: 0;
+  background-color: none;
+  border: none;
+}
+
+.close:hover {
+  border-color: transparent;
+}
+
+.close:focus,
+.close:focus-visible {
+  outline: none;
+}
+
+.submit {
+  width: 100%;
+  background-color: $cta-gray;
+  transition: background-color 0.15s ease-in-out;
+  border: none;
+  padding: 0.5rem;
+  font-size: 1rem;
+
+  &:hover {
+    background-color: $cta-hover-gray;
+    outline: none;
+    border: none;
+  }
+}
+
+.input {
+  padding: 0.5rem;
+  border-radius: 5px;
+  border: 1px solid lightslategray;
+
+  &:focus {
+    border-color: $cta-blue;
+  }
+
+  &:focus-visible {
+    border-color: $cta-blue;
+    outline: none;
+  }
 }
