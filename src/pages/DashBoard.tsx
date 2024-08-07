@@ -1,10 +1,11 @@
-import { useEffect, useState } from "react";
+import { SyntheticEvent, useEffect, useState } from "react";
 import { useAuthContext } from "../hooks";
 import { Board } from "../types";
 import { fetchBoards } from "../api";
 import styles from "../styles/Dashboard.module.scss";
 import { Portal } from "../components";
 import { SaveBoardModal } from "../components";
+import { BoardCard } from "../components/BoardCard";
 
 export const Dashboard = () => {
   const { supabaseClient } = useAuthContext();
@@ -14,6 +15,16 @@ export const Dashboard = () => {
   const [isPortalOpen, setIsPortalOpen] = useState(false);
 
   const closeModal = () => setIsPortalOpen(false);
+
+  const openModal = (e: SyntheticEvent) => {
+    e.preventDefault();
+    setIsPortalOpen(true);
+  };
+
+  const openBoard = (e: SyntheticEvent, title?: string) => {
+    e.preventDefault();
+    console.log(title);
+  };
 
   useEffect(() => {
     fetchBoards(supabaseClient, setFetchError, setBoards);
@@ -45,27 +56,22 @@ export const Dashboard = () => {
       <div>
         <ul className={styles.cardList}>
           <li>
-            <div
-              role="button"
-              aria-label="add new board"
-              onClick={() => setIsPortalOpen(true)}
-            >
-              <p>Add new board</p>
-            </div>
+            <BoardCard
+              title="Add new board"
+              imageUrl=""
+              callback={openModal}
+              addNewBoard={true}
+            />
           </li>
           {boards.length > 0 &&
             boards.map((board) => {
               return (
-                <li>
-                  <div
-                    className={styles.boardCard}
-                    key={board.id}
-                    style={{
-                      backgroundImage: `url(${board.imageUrl})`,
-                    }}
-                  >
-                    <div>{board.name}</div>
-                  </div>
+                <li key={board.id}>
+                  <BoardCard
+                    title={board.name}
+                    imageUrl={board.imageUrl}
+                    callback={openBoard}
+                  />
                 </li>
               );
             })}

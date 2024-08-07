@@ -13,12 +13,10 @@
       grid-template-columns: repeat(4, 1fr);
     }
   }
-}
 
-.boardCard {
-  background-size: cover;
-  aspect-ratio: 21/9;
-  background-color: $cta-gray;
+  h1 {
+    padding: 2rem 0;
+  }
 }
 
 li {

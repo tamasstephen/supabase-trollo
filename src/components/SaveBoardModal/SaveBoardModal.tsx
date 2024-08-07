@@ -54,7 +54,7 @@ export const SaveBoardModal = ({
           />
         </fieldset>
         <button className={styles.submit} type="submit">
-          Save Table
+          Save Board
         </button>
       </form>
     </div>
