@@ -15,26 +15,23 @@ export const BoardCard = ({
   addNewBoard: center,
 }: BoardCardProps) => {
   return (
-    <div
-      className={`${styles.boardCard}`}
-      style={{
-        backgroundImage: `url(${imageUrl})`,
-      }}
-      role="button"
-    >
+    <a className={styles.cardPrimaryAction} onClick={(e) => callback(e, title)}>
       <div
-        className={`${styles.boardCard} ${styles.outer}  ${
-          center ? styles.center : ""
-        }`}
+        className={`${styles.boardCard}`}
+        style={{
+          backgroundImage: `url(${imageUrl})`,
+        }}
+        role="button"
       >
-        <div className={`${styles.boardCard} ${styles.inner}`}></div>
-        <a
-          className={styles.cardPrimaryAction}
-          onClick={(e) => callback(e, title)}
+        <div
+          className={`${styles.boardCard} ${styles.outer}  ${
+            center ? styles.center : ""
+          }`}
         >
-          {title}
-        </a>
+          <div className={`${styles.boardCard} ${styles.inner}`}></div>
+          <h3>{title}</h3>
+        </div>
       </div>
-    </div>
+    </a>
   );
 };
