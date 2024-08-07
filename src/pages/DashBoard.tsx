@@ -43,6 +43,20 @@ export const Dashboard = () => {
           <button type="submit">Save Table</button>
         </form>
       </div>
+      <div>
+        {boards.length > 0 &&
+          boards.map((board) => {
+            return (
+              <div key={board.id}>
+                <img
+                  src={board.imageUrl}
+                  style={{ width: "300px", height: "300px" }}
+                />
+                <div>{board.name}</div>
+              </div>
+            );
+          })}
+      </div>
     </div>
   );
 };

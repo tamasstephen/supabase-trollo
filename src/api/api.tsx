@@ -9,7 +9,7 @@ export const saveBoard = async (
   setError: (value: boolean) => void
 ) => {
   event.preventDefault();
-  const payload: Omit<Board, "image"> = { name: "" };
+  const payload: Omit<Board, "image" | "id"> = { name: "" };
   payload.name = event.currentTarget.elements.boardName.value;
 
   if (event.currentTarget.elements.boardCover.files?.length && supabaseClient) {
@@ -47,14 +47,18 @@ export const fetchBoards = async (
       return;
     }
     const boards = data as Board[];
-    boards.forEach(async (board) => {
+
+    for (const board of boards) {
       if (board.background) {
         const { data } = await supabaseClient.storage
           .from("board_cover")
           .download(board.background);
-        board.image = data;
+        const imageUrl = data ? URL.createObjectURL(data) : "";
+        if (imageUrl) {
+          board.imageUrl = imageUrl;
+        }
       }
-    });
+    }
     setBoards(boards);
   }
 };
