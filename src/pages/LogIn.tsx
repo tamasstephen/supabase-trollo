@@ -1,6 +1,6 @@
 import { Auth } from "@supabase/auth-ui-react";
 import { ThemeSupa } from "@supabase/auth-ui-shared";
-import { useAuthContext } from "../hooks/useAuthContext";
+import { useAuthContext } from "../hooks";
 
 export const Login = () => {
   const { supabaseClient: supabase } = useAuthContext();

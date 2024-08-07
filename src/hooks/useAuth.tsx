@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { AuthContextProps } from "../types/AuthContext";
+import { AuthContextProps } from "../types";
 import { createClient } from "@supabase/supabase-js";
 
 const supabase = createClient(

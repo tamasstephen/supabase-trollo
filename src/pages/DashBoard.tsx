@@ -1,10 +1,10 @@
 import { useEffect, useState } from "react";
-import { useAuthContext } from "../hooks/useAuthContext";
-import { Board } from "../types/Board";
-import { fetchBoards } from "../api/api";
+import { useAuthContext } from "../hooks";
+import { Board } from "../types";
+import { fetchBoards } from "../api";
 import styles from "../styles/Dashboard.module.scss";
-import { Portal } from "../components/Portal";
-import { SaveBoardModal } from "../components/SaveBoardModal";
+import { Portal } from "../components";
+import { SaveBoardModal } from "../components";
 
 export const Dashboard = () => {
   const { supabaseClient } = useAuthContext();
@@ -43,25 +43,33 @@ export const Dashboard = () => {
         <h1>Dashboard</h1>
       </div>
       <div>
-        <div
-          role="button"
-          aria-label="add new board"
-          onClick={() => setIsPortalOpen(true)}
-        >
-          <p>Add new board</p>
-        </div>
-        {boards.length > 0 &&
-          boards.map((board) => {
-            return (
-              <div key={board.id}>
-                <img
-                  src={board.imageUrl}
-                  style={{ width: "300px", height: "300px" }}
-                />
-                <div>{board.name}</div>
-              </div>
-            );
-          })}
+        <ul className={styles.cardList}>
+          <li>
+            <div
+              role="button"
+              aria-label="add new board"
+              onClick={() => setIsPortalOpen(true)}
+            >
+              <p>Add new board</p>
+            </div>
+          </li>
+          {boards.length > 0 &&
+            boards.map((board) => {
+              return (
+                <li>
+                  <div
+                    className={styles.boardCard}
+                    key={board.id}
+                    style={{
+                      backgroundImage: `url(${board.imageUrl})`,
+                    }}
+                  >
+                    <div>{board.name}</div>
+                  </div>
+                </li>
+              );
+            })}
+        </ul>
       </div>
     </div>
   );

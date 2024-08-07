@@ -1,8 +1,8 @@
 import { useEffect, useState } from "react";
 import { Outlet, useNavigate } from "react-router-dom";
-import { useAuthContext } from "../hooks/useAuthContext";
+import { useAuthContext } from "../../hooks";
 import { Session, Subscription } from "@supabase/supabase-js";
-import styles from "../styles/Navbar.module.scss";
+import styles from "../../styles/Navbar.module.scss";
 
 export const NavBar = () => {
   const {

@@ -1,6 +1,6 @@
 import { PropsWithChildren, useEffect, useRef } from "react";
 import { createPortal } from "react-dom";
-import styles from "../styles/Portal.module.scss";
+import styles from "../../styles/Portal.module.scss";
 
 interface PortalProps extends PropsWithChildren {
   closeModal: () => void;
