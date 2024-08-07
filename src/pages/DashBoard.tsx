@@ -27,7 +27,7 @@ export const Dashboard = () => {
   };
 
   useEffect(() => {
-    fetchBoards(supabaseClient, setFetchError, setBoards);
+    fetchBoards(supabaseClient, setFetchError, setBoards, setIsLoading);
   }, [supabaseClient]);
 
   if (fetchError || !supabaseClient) {

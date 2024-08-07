@@ -38,9 +38,11 @@ export const saveBoard = async (
 export const fetchBoards = async (
   supabaseClient: SupabaseClient | null,
   setFetchError: (value: boolean) => void,
-  setBoards: (boards: Board[]) => void
+  setBoards: (boards: Board[]) => void,
+  setIsLoading: Dispatch<boolean>
 ) => {
   if (supabaseClient) {
+    setIsLoading(true);
     const { data, error } = await supabaseClient.from("boards").select();
     if (error) {
       setFetchError(true);
@@ -61,5 +63,6 @@ export const fetchBoards = async (
     }
 
     setBoards(boards);
+    setIsLoading(false);
   }
 };
