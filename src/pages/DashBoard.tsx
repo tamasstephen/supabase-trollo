@@ -1,47 +1,48 @@
 import { useEffect, useState } from "react";
 import { useAuthContext } from "../hooks/useAuthContext";
-
-interface Board {
-  background: string | null;
-  name: string;
-}
+import { Board } from "../types/Board";
+import { BoardsFormElement } from "../types/FormTypes";
+import { fetchBoards, saveBoard } from "../api/api";
 
 export const Dashboard = () => {
   const { supabaseClient } = useAuthContext();
   const [boards, setBoards] = useState<Board[]>([]);
   const [fetchError, setFetchError] = useState(false);
-
-  const saveTable = async () => {
-    const response = await supabaseClient
-      ?.from("boards")
-      .insert({ name: "whatever" });
-    console.log("response", response);
-  };
-
-  const fetchBoards = async () => {
-    if (supabaseClient) {
-      const { data, error } = await supabaseClient.from("boards").select();
-      if (error) {
-        setFetchError(true);
-        return;
-      }
-      const boards = data as Board[];
-      setBoards(boards);
-    }
-  };
+  const [isLoading, setIsLoading] = useState(false);
 
   useEffect(() => {
-    fetchBoards();
-  });
+    fetchBoards(supabaseClient, setFetchError, setBoards);
+  }, [supabaseClient]);
 
-  if (fetchError) {
+  if (fetchError || !supabaseClient) {
     return <div>An error has occured during the board loading...</div>;
+  }
+
+  if (isLoading) {
+    return <div>Loading</div>;
   }
 
   return (
     <div>
-      <button onClick={saveTable}>Save Table</button>
       Dashboard
+      <div>
+        <form
+          onSubmit={(e: React.FormEvent<BoardsFormElement>) =>
+            saveBoard(supabaseClient, e, setIsLoading, setFetchError)
+          }
+        >
+          <input
+            type="file"
+            id="boardCover"
+            name="boardCover"
+            accept="image/png, image/jpeg"
+          />
+          <label htmlFor="boardName">
+            <input id="boardName" type="text" />
+          </label>
+          <button type="submit">Save Table</button>
+        </form>
+      </div>
     </div>
   );
 };
