@@ -1,0 +1,24 @@
+@import "./base.scss";
+
+.dashboardWrapper {
+  padding: 1rem;
+
+  .cardList {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 1rem;
+    padding-left: 0;
+
+    @media screen and (min-width: 1200px) {
+      grid-template-columns: repeat(4, 1fr);
+    }
+  }
+
+  h1 {
+    padding: 2rem 0;
+  }
+}
+
+li {
+  list-style-type: none;
+}
