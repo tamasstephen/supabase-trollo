@@ -1,0 +1,19 @@
+@import "./base.scss";
+
+.navWrapper {
+  width: 100%;
+  border-bottom: 1px solid $border-gray;
+}
+
+.navInnerWrapper {
+  padding: 0.5rem 1rem;
+  display: flex;
+  justify-content: space-between;
+}
+
+.logo {
+  font-weight: 700;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}

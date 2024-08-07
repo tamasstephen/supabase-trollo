@@ -1,14 +1,19 @@
 import { useEffect, useState } from "react";
 import { useAuthContext } from "../hooks/useAuthContext";
 import { Board } from "../types/Board";
-import { BoardsFormElement } from "../types/FormTypes";
-import { fetchBoards, saveBoard } from "../api/api";
+import { fetchBoards } from "../api/api";
+import styles from "../styles/Dashboard.module.scss";
+import { Portal } from "../components/Portal";
+import { SaveBoardModal } from "../components/SaveBoardModal";
 
 export const Dashboard = () => {
   const { supabaseClient } = useAuthContext();
   const [boards, setBoards] = useState<Board[]>([]);
   const [fetchError, setFetchError] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
+  const [isPortalOpen, setIsPortalOpen] = useState(false);
+
+  const closeModal = () => setIsPortalOpen(false);
 
   useEffect(() => {
     fetchBoards(supabaseClient, setFetchError, setBoards);
@@ -23,27 +28,28 @@ export const Dashboard = () => {
   }
 
   return (
-    <div>
-      Dashboard
-      <div>
-        <form
-          onSubmit={(e: React.FormEvent<BoardsFormElement>) =>
-            saveBoard(supabaseClient, e, setIsLoading, setFetchError)
-          }
-        >
-          <input
-            type="file"
-            id="boardCover"
-            name="boardCover"
-            accept="image/png, image/jpeg"
+    <div className={styles.dashboardWrapper}>
+      {isPortalOpen && (
+        <Portal>
+          <SaveBoardModal
+            supabaseClient={supabaseClient}
+            setIsLoading={setIsLoading}
+            setFetchError={setFetchError}
+            closeModal={closeModal}
           />
-          <label htmlFor="boardName">
-            <input id="boardName" type="text" />
-          </label>
-          <button type="submit">Save Table</button>
-        </form>
+        </Portal>
+      )}
+      <div>
+        <h1>Dashboard</h1>
       </div>
       <div>
+        <div
+          role="button"
+          aria-label="add new board"
+          onClick={() => setIsPortalOpen(true)}
+        >
+          <p>Add new board</p>
+        </div>
         {boards.length > 0 &&
           boards.map((board) => {
             return (

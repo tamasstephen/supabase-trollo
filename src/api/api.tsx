@@ -1,18 +1,18 @@
 import { SupabaseClient } from "@supabase/supabase-js";
 import { Board } from "../types/Board";
 import { BoardsFormElement } from "../types/FormTypes";
+import { Dispatch } from "react";
 
 export const saveBoard = async (
   supabaseClient: SupabaseClient,
   event: React.FormEvent<BoardsFormElement>,
-  setLoading: (value: boolean) => void,
-  setError: (value: boolean) => void
+  setLoading: Dispatch<boolean>,
+  setError: Dispatch<boolean>
 ) => {
   event.preventDefault();
   const payload: Omit<Board, "image" | "id"> = { name: "" };
   payload.name = event.currentTarget.elements.boardName.value;
-
-  if (event.currentTarget.elements.boardCover.files?.length && supabaseClient) {
+  if (event.currentTarget.elements.boardCover.files?.length) {
     setLoading(true);
     const boardCover = event.currentTarget.elements.boardCover.files[0];
     const { data, error } = await supabaseClient.storage
@@ -59,6 +59,7 @@ export const fetchBoards = async (
         }
       }
     }
+
     setBoards(boards);
   }
 };
