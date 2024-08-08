@@ -14,6 +14,7 @@ export const BoardCard = ({
   callback,
   addNewBoard: center,
 }: BoardCardProps) => {
+  console.log("title", title);
   return (
     <a className={styles.cardPrimaryAction} onClick={(e) => callback(e, title)}>
       <div
