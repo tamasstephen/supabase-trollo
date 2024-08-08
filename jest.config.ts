@@ -12,4 +12,10 @@ export default {
     "\\.(css|less|scss|sass)$": "identity-obj-proxy",
     "\\.module\\.(css|less|scss|sass)$": "<rootDir>/__mocks__/styleMock.js",
   },
+  collectCoverageFrom: [
+    "./src/**/*.{js,jsx,ts,tsx}",
+    "!**/node_modules/**",
+    "!**/vendor/**",
+  ],
+  coverageReporters: ["text", "text-summary"],
 };
