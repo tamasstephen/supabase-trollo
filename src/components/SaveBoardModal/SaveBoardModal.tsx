@@ -1,23 +1,28 @@
-import { SupabaseClient } from "@supabase/supabase-js";
-import { saveBoard } from "../../api";
 import { BoardsFormElement } from "../../types";
-import { Dispatch } from "react";
+
 import CloseIcon from "../../assets/close.svg?react";
 import styles from "../../styles/SaveBoardModal.module.scss";
+import { useSaveBoard } from "../../hooks/";
 
 interface SaveBoardModalProps {
-  supabaseClient: SupabaseClient;
-  setIsLoading: Dispatch<boolean>;
-  setFetchError: Dispatch<boolean>;
   closeModal: () => void;
 }
 
-export const SaveBoardModal = ({
-  supabaseClient,
-  setIsLoading,
-  setFetchError,
-  closeModal,
-}: SaveBoardModalProps) => {
+export const SaveBoardModal = ({ closeModal }: SaveBoardModalProps) => {
+  const { loading, error, saveBoard } = useSaveBoard();
+
+  if (loading) {
+    return <div className={styles.saveBoardWrapper}>Loading</div>;
+  }
+
+  if (error) {
+    return (
+      <div className={styles.saveBoardWrapper}>
+        An error has occured during saving, please try again later
+      </div>
+    );
+  }
+
   return (
     <div className={styles.saveBoardWrapper}>
       <button
@@ -28,11 +33,7 @@ export const SaveBoardModal = ({
         <CloseIcon />
       </button>
       <h3>Create a board</h3>
-      <form
-        onSubmit={(e: React.FormEvent<BoardsFormElement>) =>
-          saveBoard(supabaseClient, e, setIsLoading, setFetchError)
-        }
-      >
+      <form onSubmit={(e: React.FormEvent<BoardsFormElement>) => saveBoard(e)}>
         <fieldset>
           <label htmlFor="boardCover">Board cover</label>
           <input
