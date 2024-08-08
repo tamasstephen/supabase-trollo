@@ -1,5 +1,5 @@
 import { useAuthContext } from "..";
-import { Board, BoardsFormElement } from "../../types";
+import { Board, BoardsFormElement } from "@/types";
 import { useState } from "react";
 
 export const useSaveBoard = () => {
