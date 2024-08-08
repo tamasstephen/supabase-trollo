@@ -1,11 +1,11 @@
 import { SyntheticEvent, useEffect, useState } from "react";
-import { useAuthContext } from "../hooks";
-import { Board } from "../types";
-import { fetchBoards } from "../api";
-import styles from "../styles/Dashboard.module.scss";
-import { Portal } from "../components";
-import { SaveBoardModal } from "../components";
-import { BoardCard } from "../components/BoardCard";
+import { useAuthContext } from "@/hooks";
+import { Board } from "@/types";
+import { fetchBoards } from "@/api";
+import styles from "@/styles/Dashboard.module.scss";
+import { Portal } from "@/components";
+import { SaveBoardModal } from "@/components";
+import { BoardCard } from "@/components/BoardCard";
 
 export const Dashboard = () => {
   const { supabaseClient } = useAuthContext();

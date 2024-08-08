@@ -1,8 +1,8 @@
-import { BoardsFormElement } from "../../types";
+import { BoardsFormElement } from "@/types";
 
-import CloseIcon from "../../assets/close.svg?react";
-import styles from "../../styles/SaveBoardModal.module.scss";
-import { useSaveBoard } from "../../hooks/";
+import CloseIcon from "@/assets/close.svg?react";
+import styles from "@/styles/SaveBoardModal.module.scss";
+import { useSaveBoard } from "@/hooks/";
 
 interface SaveBoardModalProps {
   closeModal: () => void;

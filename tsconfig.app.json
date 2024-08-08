@@ -8,6 +8,9 @@
     "module": "ESNext",
     "skipLibCheck": true,
     "types": ["vite-plugin-svgr/client"],
+    "paths": {
+      "@/*": ["./src/*"]
+    },
 
     /* Bundler mode */
     "moduleResolution": "bundler",

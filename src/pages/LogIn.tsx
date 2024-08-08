@@ -1,7 +1,7 @@
 import { Auth } from "@supabase/auth-ui-react";
 import { ThemeSupa } from "@supabase/auth-ui-shared";
-import { useAuthContext } from "../hooks";
-import styles from "../styles/Login.module.scss";
+import { useAuthContext } from "@/hooks";
+import styles from "@/styles/Login.module.scss";
 
 const updatedTheme = {
   theme: ThemeSupa,
