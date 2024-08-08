@@ -54,7 +54,7 @@ describe("BoardCard", () => {
     expect(element.classList.contains("center")).toBe(true);
   });
 
-  test("The card has the center style", () => {
+  test("The card does not have the center style", () => {
     render(
       <BoardCard
         title={mockTitle}
