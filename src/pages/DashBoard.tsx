@@ -23,6 +23,7 @@ export const Dashboard = () => {
 
   const openBoard = (e: SyntheticEvent, title?: string) => {
     e.preventDefault();
+    // eslint-disable-next-line no-console
     console.log(title);
   };
 
