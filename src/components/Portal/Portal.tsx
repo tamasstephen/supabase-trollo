@@ -10,8 +10,9 @@ export const Portal = ({ children, closeModal }: PortalProps) => {
   const mount = document.querySelector("#portal");
   const el = document.createElement("div");
   const divInner = document.createElement("div");
-  el.appendChild(divInner);
   el.className = styles.modal;
+  el.dataset.testid = "portal";
+  el.appendChild(divInner);
   const clickTarget = useRef(divInner);
 
   const handleClickOutSide = (e: MouseEvent) => {
