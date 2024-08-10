@@ -11,7 +11,6 @@ const mockUseSaveBoard = useSaveBoard as jest.MockedFunction<
   typeof useSaveBoard
 >;
 const mockCloseModal = jest.fn();
-// eslint-disable-next-line @typescript-eslint/no-unused-vars
 const mockSaveBoard = jest.fn((event: React.FormEvent<BoardsFormElement>) => {
   event.preventDefault();
   return Promise.resolve();
