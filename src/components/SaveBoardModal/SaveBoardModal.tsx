@@ -3,6 +3,8 @@ import { BoardsFormElement } from "@/types";
 import CloseIcon from "@/assets/close.svg";
 import styles from "@/styles/SaveBoardModal.module.scss";
 import { useSaveBoard } from "@/hooks/";
+import { SaveLoading } from "./SaveLoading";
+import { SaveError } from "./SaveError";
 
 interface SaveBoardModalProps {
   closeModal: () => void;
@@ -12,15 +14,11 @@ export const SaveBoardModal = ({ closeModal }: SaveBoardModalProps) => {
   const { loading, error, saveBoard } = useSaveBoard();
 
   if (loading) {
-    return <div className={styles.saveBoardWrapper}>Loading</div>;
+    return <SaveLoading />;
   }
 
   if (error) {
-    return (
-      <div className={styles.saveBoardWrapper}>
-        An error has occured during saving, please try again later
-      </div>
-    );
+    return <SaveError />;
   }
 
   return (
@@ -29,6 +27,7 @@ export const SaveBoardModal = ({ closeModal }: SaveBoardModalProps) => {
         className={styles.close}
         onClick={() => closeModal()}
         aria-label="close modal"
+        data-testid="close"
       >
         <CloseIcon />
       </button>
@@ -52,6 +51,7 @@ export const SaveBoardModal = ({ closeModal }: SaveBoardModalProps) => {
             id="boardName"
             name="boardName"
             type="text"
+            required
           />
         </fieldset>
         <button className={styles.submit} type="submit">

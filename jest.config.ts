@@ -42,6 +42,5 @@ export default {
     "!**/node_modules/**",
     "!**/vendor/**",
   ],
-
   coverageReporters: ["text", "text-summary"],
 };

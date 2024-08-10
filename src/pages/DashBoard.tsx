@@ -1,5 +1,4 @@
 import { SyntheticEvent, useState } from "react";
-import { useAuthContext } from "@/hooks";
 import { useFetchBoards } from "@/hooks/";
 import styles from "@/styles/Dashboard.module.scss";
 import { Portal } from "@/components";
@@ -7,7 +6,6 @@ import { SaveBoardModal } from "@/components";
 import { BoardCard } from "@/components/BoardCard";
 
 export const Dashboard = () => {
-  const { supabaseClient } = useAuthContext();
   const [isPortalOpen, setIsPortalOpen] = useState(false);
   const { error, loading, data: boards } = useFetchBoards();
 
@@ -24,7 +22,7 @@ export const Dashboard = () => {
     console.log(title);
   };
 
-  if (error || !supabaseClient) {
+  if (error) {
     return <div>An error has occured during the board loading...</div>;
   }
 
