@@ -2,7 +2,7 @@
   "compilerOptions": {
     "jsx": "react-jsx", // or "react"
     "target": "esnext",
-    "module": "commonjs",
+    "module": "ESNext",
     "lib": ["dom", "dom.iterable", "esnext"],
     "allowJs": true,
     "skipLibCheck": true,

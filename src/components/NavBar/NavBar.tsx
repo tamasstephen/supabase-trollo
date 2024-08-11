@@ -49,7 +49,7 @@ export const NavBar = () => {
 
   return (
     <div>
-      <div className={styles.navWrapper}>
+      <div className={styles.navWrapper} data-testid="navbar">
         <div className={styles.navInnerWrapper}>
           <div
             role="link"
