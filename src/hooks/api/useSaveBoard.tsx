@@ -60,6 +60,7 @@ export const useSaveBoard = () => {
         payload
       );
       if (isError) {
+        setLoading(false);
         return;
       }
     }
