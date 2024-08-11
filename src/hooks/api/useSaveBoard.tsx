@@ -15,17 +15,21 @@ export const useSaveBoard = () => {
     supabaseClient: SupabaseClient,
     payload: Payload
   ) => {
-    const { data, error } = await supabaseClient.storage
-      .from("board_cover")
-      .upload(`board_cover/${boardCover.name}`, boardCover, {
-        cacheControl: "3600",
-        upsert: false,
-      });
-    if (error) {
+    try {
+      const { data, error } = await supabaseClient.storage
+        .from("board_cover")
+        .upload(`board_cover/${boardCover.name}`, boardCover, {
+          cacheControl: "3600",
+          upsert: false,
+        });
+      if (error) {
+        setError(true);
+        return error;
+      }
+      payload.background = data.path;
+    } catch {
       setError(true);
-      return;
     }
-    payload.background = data.path;
   };
 
   const saveBoardData = async (
@@ -50,7 +54,14 @@ export const useSaveBoard = () => {
     payload.name = event.currentTarget.elements.boardName.value;
     if (event.currentTarget.elements.boardCover.files?.length) {
       const boardCover = event.currentTarget.elements.boardCover.files[0];
-      await saveBoardBackGround(boardCover, supabaseClient, payload);
+      const isError = await saveBoardBackGround(
+        boardCover,
+        supabaseClient,
+        payload
+      );
+      if (isError) {
+        return;
+      }
     }
     await saveBoardData(payload, supabaseClient);
     setLoading(false);
