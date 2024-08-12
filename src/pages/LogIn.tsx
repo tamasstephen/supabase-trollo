@@ -29,5 +29,5 @@ export const Login = () => {
       </div>
     );
   }
-  return <></>;
+  return <p>An error has occured</p>;
 };
