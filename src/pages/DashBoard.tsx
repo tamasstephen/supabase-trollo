@@ -1,13 +1,16 @@
 import { SyntheticEvent, useState } from "react";
 import { useFetchBoards } from "@/hooks/";
 import styles from "@/styles/Dashboard.module.scss";
-import { Portal } from "@/components";
+import { Loading, Portal } from "@/components";
 import { SaveBoardModal } from "@/components";
 import { BoardCard } from "@/components/BoardCard";
+import { Error } from "@/components/";
+import { useNavigate } from "react-router-dom";
 
 export const Dashboard = () => {
   const [isPortalOpen, setIsPortalOpen] = useState(false);
   const { error, loading, data: boards } = useFetchBoards();
+  const navigate = useNavigate();
 
   const closeModal = () => setIsPortalOpen(false);
 
@@ -20,14 +23,16 @@ export const Dashboard = () => {
     e.preventDefault();
     // eslint-disable-next-line no-console
     console.log(title);
+    // TODO: update when board page is available
+    navigate("/");
   };
 
   if (error) {
-    return <div>An error has occured during the board loading...</div>;
+    return <Error />;
   }
 
   if (loading) {
-    return <div>Loading</div>;
+    return <Loading />;
   }
 
   return (
