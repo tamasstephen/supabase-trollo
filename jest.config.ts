@@ -43,4 +43,5 @@ export default {
     "!**/vendor/**",
   ],
   coverageReporters: ["text", "text-summary"],
+  setupFilesAfterEnv: ["<rootDir>/setupTests.ts"],
 };
