@@ -5,4 +5,5 @@ export interface AuthContextProps {
   setToSignedOut: () => void;
   isSignedIn: boolean;
   supabaseClient: SupabaseClient | null;
+  loading: boolean;
 }
