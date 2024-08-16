@@ -3,6 +3,7 @@ import { NavBar } from "@/components";
 import { Login } from "@/pages";
 import { ProtectedRoute } from "./ProtectedRoute";
 import { Dashboard } from "@/pages";
+import { Board } from "@/pages/Board";
 
 const router = createBrowserRouter([
   {
@@ -14,6 +15,14 @@ const router = createBrowserRouter([
         element: (
           <ProtectedRoute>
             <Dashboard />
+          </ProtectedRoute>
+        ),
+      },
+      {
+        path: "/board",
+        element: (
+          <ProtectedRoute>
+            <Board />,
           </ProtectedRoute>
         ),
       },

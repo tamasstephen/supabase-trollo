@@ -4,3 +4,4 @@ export { AuthContext, AuthContextProvider } from "./context";
 export { SaveBoardModal } from "./SaveBoardModal";
 export { Loading } from "./Loading";
 export { Error } from "./Error";
+export { BoardListCard } from "./BoardListCard";
