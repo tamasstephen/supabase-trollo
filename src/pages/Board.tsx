@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, MouseEvent } from "react";
 import {
   DndContext,
   KeyboardSensor,
@@ -18,8 +18,10 @@ import {
   sortableKeyboardCoordinates,
 } from "@dnd-kit/sortable";
 
-import { BoardListCard } from "@/components";
-import { BoardContainer } from "@/components/BoardContainer/BoardContainer";
+import { BoardListCard, Portal } from "@/components";
+import { BoardContainer } from "@/components";
+import { AddBoardColumn } from "@/components";
+import { BoardColumnFormElement } from "@/types";
 
 interface BoardItem {
   id: string;
@@ -34,21 +36,22 @@ type BoardType = {
 
 export const Board = () => {
   const [activeId, setActiveId] = useState<UniqueIdentifier | null>(null);
+  const [isModalOpen, setIsModalOpen] = useState(false);
   const [boardColumns, setBoardColumn] = useState<BoardType[]>([
     {
-      id: "first",
+      id: "first-container",
       title: "title",
       items: [
-        { id: "1", title: "hey" },
-        { id: "2", title: "ho" },
+        { id: "1-card", title: "hey" },
+        { id: "2-card", title: "ho" },
       ],
     },
     {
-      id: "second",
+      id: "second-container",
       title: "title2",
       items: [
-        { id: "3", title: "hey" },
-        { id: "4", title: "ho" },
+        { id: "3-card", title: "hey" },
+        { id: "4-card", title: "ho" },
       ],
     },
   ]);
@@ -64,16 +67,13 @@ export const Board = () => {
     const card = boardColumns
       .find((board) => board.items.find((item) => item.id === id))
       ?.items.find((item) => id === item.id);
+
     return card;
   };
 
-  const findActiveContainers = (boardCardId: string) => {
-    const container = boardColumns.find((column) => {
-      const hasItem = column.items.find((item) => item.id === boardCardId);
-      if (hasItem) {
-        return column;
-      }
-    });
+  const findActiveContainers = (activeId: string) => {
+    const container = boardColumns.find((column) => column.id === activeId);
+
     return container;
   };
 
@@ -86,6 +86,27 @@ export const Board = () => {
     setActiveId(id);
   }
 
+  const addBoardColumn = (e: React.FormEvent<BoardColumnFormElement>) => {
+    e.preventDefault();
+    const boardTitle = e.currentTarget.elements.boardColumnTitle.value;
+    const isAlreadyPresent = boardColumns.find(
+      (column) => column.title === boardTitle
+    );
+    if (isAlreadyPresent) {
+      // TODO: implement error case
+      return;
+    }
+
+    setBoardColumn([
+      ...boardColumns,
+      {
+        id: `${boardTitle}-container`,
+        title: boardTitle,
+        items: [],
+      },
+    ]);
+  };
+
   const handleDragEnd = (event: DragEndEvent) => {
     const { active, over } = event;
 
@@ -93,9 +114,43 @@ export const Board = () => {
 
     const activeContainer = active.data.current?.sortable.containerId;
     const overContainer = over.data.current?.sortable.containerId;
+    const hoverTargetId = over.id;
+    const initialItemId = active.id as string;
+    if (
+      (over.id as string).includes("container") &&
+      initialItemId.includes("card") &&
+      initialItemId !== hoverTargetId
+    ) {
+      setBoardColumn((prevColumns) => {
+        const activeColumn = prevColumns.find(
+          (column) => column.id === activeContainer
+        );
+        const overColumn = prevColumns.find(
+          (column) => column.id === hoverTargetId
+        );
+        if (!activeColumn || !overColumn) return prevColumns;
+        const activeIndex = activeColumn.items.findIndex(
+          (item) => item.id === active.id
+        );
+        const newActiveItems = activeColumn.items.filter(
+          (_, index) => index !== activeIndex
+        );
 
-    // If the grabbed item is dropped into a new container
-    if (activeContainer !== overContainer) {
+        const newOverItems = [activeColumn.items[activeIndex]];
+        const newColumns = prevColumns.map((column) => {
+          if (column.id === active?.data?.current?.sortable.containerId) {
+            column.items = newActiveItems;
+          }
+          if (column.id === hoverTargetId) {
+            column.items = newOverItems;
+          }
+          return column;
+        });
+        return newColumns;
+      });
+    } else if (activeContainer !== overContainer) {
+      // If the grabbed item is dropped into a new container
+
       setBoardColumn((prevColumns) => {
         const activeColumn = prevColumns.find(
           (column) => column.id === activeContainer
@@ -103,6 +158,7 @@ export const Board = () => {
         const overColumn = prevColumns.find(
           (column) => column.id === overContainer
         );
+
         if (!activeColumn || !overColumn) return prevColumns;
         const activeItems = activeColumn.items;
         const overItems = overColumn.items;
@@ -164,6 +220,12 @@ export const Board = () => {
           alignItems: "center",
         }}
       >
+        <button onClick={() => setIsModalOpen(true)}>open modal</button>
+        {isModalOpen && (
+          <Portal closeModal={() => setIsModalOpen(false)}>
+            <AddBoardColumn callback={addBoardColumn} />
+          </Portal>
+        )}
         <DndContext
           sensors={sensors}
           collisionDetection={closestCorners}
@@ -183,16 +245,18 @@ export const Board = () => {
                   id={container.id}
                   items={container.items.map((i) => i.id)}
                 >
-                  {container.items.map((i) => (
-                    <BoardListCard title={i.title} id={i.id} key={i.id} />
-                  ))}
+                  <div style={{ minHeight: "100px", minWidth: "100%" }}>
+                    {container.items.map((i) => (
+                      <BoardListCard title={i.title} id={i.id} key={i.id} />
+                    ))}
+                  </div>
                 </SortableContext>
               </BoardContainer>
             ))}
           </SortableContext>
           <DragOverlay adjustScale={false}>
             {/* Drag Overlay For item Item */}
-            {activeId && activeCard && (
+            {activeId && activeId.toString().includes("card") && (
               <BoardListCard id={activeId} title={activeCard?.title || ""} />
             )}
             {/* Drag Overlay For Container */}

@@ -5,3 +5,5 @@ export { SaveBoardModal } from "./SaveBoardModal";
 export { Loading } from "./Loading";
 export { Error } from "./Error";
 export { BoardListCard } from "./BoardListCard";
+export { AddBoardColumn } from "./AddBoardColumn";
+export { BoardContainer } from "./BoardContainer";

@@ -5,3 +5,11 @@ interface FormElements extends HTMLFormControlsCollection {
 export interface BoardsFormElement extends HTMLFormElement {
   readonly elements: FormElements;
 }
+
+interface AddBoardColumnFormElement extends HTMLFormControlsCollection {
+  boardColumnTitle: HTMLInputElement;
+}
+
+export interface BoardColumnFormElement extends HTMLFormElement {
+  readonly elements: AddBoardColumnFormElement;
+}
