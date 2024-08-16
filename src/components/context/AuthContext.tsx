@@ -7,6 +7,7 @@ export const AuthContext = createContext<AuthContextProps>({
   setToSignedIn: () => {},
   setToSignedOut: () => {},
   supabaseClient: null,
+  loading: true,
 });
 
 export const AuthContextProvider = ({ children }: PropsWithChildren) => {

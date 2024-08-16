@@ -24,6 +24,7 @@ const setUpMockedAuthContext = (initialSignIn: boolean, session?: object) => {
     const [isSignedIn, setIsSignedIn] = useState(initialSignIn);
     setSignedIn = setIsSignedIn;
     return {
+      loading: false,
       isSignedIn,
       setToSignedIn: mockSetToSignedIn,
       setToSignedOut: mockSetToSignedOut,

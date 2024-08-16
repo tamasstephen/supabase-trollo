@@ -22,6 +22,7 @@ const setupMockUseAuthContext = (error: boolean) => {
   return mockUseAuthContext.mockImplementation(() => {
     return {
       isSignedIn: true,
+      loading: false,
       setToSignedIn: () => {},
       setToSignedOut: () => {},
       supabaseClient: {
