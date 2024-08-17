@@ -170,9 +170,34 @@ export const Board = () => {
     const initialItemId = active.id as string;
     if (
       (over.id as string).includes("container") &&
+      (active.id as string).includes("container")
+    ) {
+      const activeContainerIndex = boardColumns.findIndex(
+        (column) => column.id === active.id
+      );
+      const overContainerIndex = boardColumns.findIndex(
+        (column) => column.id === over.id
+      );
+
+      if (activeContainerIndex === -1 || overContainerIndex === -1) {
+        return;
+      }
+
+      const newItems = [...boardColumns];
+      const newArray = arrayMove(
+        newItems,
+        activeContainerIndex,
+        overContainerIndex
+      );
+
+      setBoardColumn(newArray);
+    }
+    if (
+      (over.id as string).includes("container") &&
       initialItemId.includes("card") &&
       initialItemId !== hoverTargetId
     ) {
+      // If the dragged item is dropped into an empty container
       setBoardColumn((prevColumns) => {
         const activeColumn = prevColumns.find(
           (column) => column.id === activeContainer
