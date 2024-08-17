@@ -24,6 +24,7 @@ export const BoardContainer = ({
         type: "container",
       },
     });
+
   return (
     <div
       {...attributes}
@@ -35,18 +36,15 @@ export const BoardContainer = ({
         margin: "32px",
       }}
     >
-      <div
-        className="flex items-center justify-between"
-        style={{ border: "1px solid black", padding: "1rem" }}
-      >
-        <div className="flex flex-col gap-y-1">
-          <h1 className="text-gray-800 text-xl">{title}</h1>
-          <p className="text-gray-400 text-sm">{description}</p>
+      <div style={{ border: "1px solid black", padding: "1rem" }}>
+        <div>
+          <h1>{title}</h1>
+          <p>{description}</p>
         </div>
       </div>
 
       {children}
-      <button onClick={onAddItem}>Add Item</button>
+      <button onClick={() => onAddItem()}>Add Item</button>
     </div>
   );
 };
