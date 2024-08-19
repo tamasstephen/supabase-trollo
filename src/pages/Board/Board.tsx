@@ -18,18 +18,10 @@ import { handleDragEnd, handleDragStart } from "./handlers";
 import { AddBoardItem, BoardListCard, Portal } from "@/components";
 import { BoardContainer } from "@/components";
 import { AddBoardColumn } from "@/components";
-import { BoardColumnFormElement } from "@/types";
-
-interface BoardItem {
-  id: string;
-  title: string;
-}
-
-type BoardType = {
-  id: string;
-  title: string;
-  items: BoardItem[];
-};
+import { BoardColumnFormElement, BoardType } from "@/types";
+import { useParams } from "react-router-dom";
+import { useSaveBoardColumn } from "@/hooks";
+import { useAuthContext } from "@/hooks";
 
 enum BoardModalContent {
   EMPTY,
@@ -46,24 +38,10 @@ export const Board = () => {
   const [saveItemContainer, setSaveItemContainer] = useState<string | null>(
     null
   );
-  const [boardColumns, setBoardColumn] = useState<BoardType[]>([
-    {
-      id: "first-container",
-      title: "title",
-      items: [
-        { id: "1-card", title: "hey" },
-        { id: "2-card", title: "ho" },
-      ],
-    },
-    {
-      id: "second-container",
-      title: "title2",
-      items: [
-        { id: "3-card", title: "hey" },
-        { id: "4-card", title: "ho" },
-      ],
-    },
-  ]);
+  const [boardColumns, setBoardColumn] = useState<BoardType[]>([]);
+  const { supabaseClient } = useAuthContext();
+  const { id } = useParams();
+  const { saveBoardColumn } = useSaveBoardColumn();
 
   const sensors = useSensors(
     useSensor(PointerSensor, {
@@ -94,6 +72,10 @@ export const Board = () => {
 
   const activeContainer = findActiveContainers(activeId as string);
   const activeCard = findActiveBoardListCard(activeId as string);
+
+  if (!supabaseClient) {
+    return <>no client</>;
+  }
 
   const addBoardItem = (
     e: React.FormEvent<BoardColumnFormElement>,
@@ -129,9 +111,10 @@ export const Board = () => {
     });
   };
 
-  const addBoardColumn = (e: React.FormEvent<BoardColumnFormElement>) => {
+  const addBoardColumn = async (e: React.FormEvent<BoardColumnFormElement>) => {
     e.preventDefault();
     const boardTitle = e.currentTarget.elements.boardColumnTitle.value;
+    if (!boardTitle) return;
     const isAlreadyPresent = boardColumns.find(
       (column) => column.title === boardTitle
     );
@@ -140,11 +123,25 @@ export const Board = () => {
       return;
     }
 
+    const newColumn = await saveBoardColumn(
+      {
+        board_id: parseInt(id as string),
+        title: boardTitle,
+        index: boardColumns.length,
+      },
+      supabaseClient
+    );
+
+    if (!newColumn) {
+      // TODO: handle request error
+      return;
+    }
+
     setBoardColumn([
       ...boardColumns,
       {
-        id: `${boardTitle}-container`,
-        title: boardTitle,
+        id: `${newColumn.id}-container`,
+        title: newColumn.title,
         items: [],
       },
     ]);

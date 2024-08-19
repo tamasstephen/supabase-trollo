@@ -19,12 +19,10 @@ export const Dashboard = () => {
     setIsPortalOpen(true);
   };
 
-  const openBoard = (e: SyntheticEvent, title?: string) => {
+  const openBoard = (e: SyntheticEvent, id: number) => {
     e.preventDefault();
-    // eslint-disable-next-line no-console
-    console.log(title);
-    // TODO: update when board page is available
-    navigate("/");
+
+    navigate(`/board/${id}`);
   };
 
   if (error) {
@@ -62,7 +60,7 @@ export const Dashboard = () => {
                   <BoardCard
                     title={board.name}
                     imageUrl={board.imageUrl}
-                    callback={openBoard}
+                    callback={(e) => openBoard(e, board.id)}
                   />
                 </li>
               );
