@@ -4,3 +4,14 @@ export interface Board {
   imageUrl?: string;
   id: number;
 }
+
+export interface BoardItem {
+  id: string;
+  title: string;
+}
+
+export type BoardType = {
+  id: string;
+  title: string;
+  items: BoardItem[];
+};

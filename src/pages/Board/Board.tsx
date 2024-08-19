@@ -5,19 +5,16 @@ import {
   PointerSensor,
   useSensor,
   useSensors,
-  DragEndEvent,
   closestCorners,
-  DragStartEvent,
   UniqueIdentifier,
   DragOverlay,
 } from "@dnd-kit/core";
 
 import {
-  arrayMove,
   SortableContext,
   sortableKeyboardCoordinates,
 } from "@dnd-kit/sortable";
-
+import { handleDragEnd, handleDragStart } from "./handlers";
 import { AddBoardItem, BoardListCard, Portal } from "@/components";
 import { BoardContainer } from "@/components";
 import { AddBoardColumn } from "@/components";
@@ -98,12 +95,6 @@ export const Board = () => {
   const activeContainer = findActiveContainers(activeId as string);
   const activeCard = findActiveBoardListCard(activeId as string);
 
-  function handleDragStart(event: DragStartEvent) {
-    const { active } = event;
-    const { id } = active;
-    setActiveId(id);
-  }
-
   const addBoardItem = (
     e: React.FormEvent<BoardColumnFormElement>,
     columnId: UniqueIdentifier | null
@@ -159,135 +150,6 @@ export const Board = () => {
     ]);
   };
 
-  const handleDragEnd = (event: DragEndEvent) => {
-    const { active, over } = event;
-
-    if (!over) return;
-
-    const activeContainer = active.data.current?.sortable.containerId;
-    const overContainer = over.data.current?.sortable.containerId;
-    const hoverTargetId = over.id;
-    const initialItemId = active.id as string;
-    if (
-      (over.id as string).includes("container") &&
-      (active.id as string).includes("container")
-    ) {
-      const activeContainerIndex = boardColumns.findIndex(
-        (column) => column.id === active.id
-      );
-      const overContainerIndex = boardColumns.findIndex(
-        (column) => column.id === over.id
-      );
-
-      if (activeContainerIndex === -1 || overContainerIndex === -1) {
-        return;
-      }
-
-      const newItems = [...boardColumns];
-      const newArray = arrayMove(
-        newItems,
-        activeContainerIndex,
-        overContainerIndex
-      );
-
-      setBoardColumn(newArray);
-    }
-    if (
-      (over.id as string).includes("container") &&
-      initialItemId.includes("card") &&
-      initialItemId !== hoverTargetId
-    ) {
-      // If the dragged item is dropped into an empty container
-      setBoardColumn((prevColumns) => {
-        const activeColumn = prevColumns.find(
-          (column) => column.id === activeContainer
-        );
-        const overColumn = prevColumns.find(
-          (column) => column.id === hoverTargetId
-        );
-        if (!activeColumn || !overColumn) return prevColumns;
-        const activeIndex = activeColumn.items.findIndex(
-          (item) => item.id === active.id
-        );
-        const newActiveItems = activeColumn.items.filter(
-          (_, index) => index !== activeIndex
-        );
-
-        const newOverItems = [activeColumn.items[activeIndex]];
-        const newColumns = prevColumns.map((column) => {
-          if (column.id === active?.data?.current?.sortable.containerId) {
-            column.items = newActiveItems;
-          }
-          if (column.id === hoverTargetId) {
-            column.items = newOverItems;
-          }
-          return column;
-        });
-        return newColumns;
-      });
-    } else if (activeContainer !== overContainer) {
-      // If the grabbed item is dropped into a new container
-
-      setBoardColumn((prevColumns) => {
-        const activeColumn = prevColumns.find(
-          (column) => column.id === activeContainer
-        );
-        const overColumn = prevColumns.find(
-          (column) => column.id === overContainer
-        );
-
-        if (!activeColumn || !overColumn) return prevColumns;
-        const activeItems = activeColumn.items;
-        const overItems = overColumn.items;
-
-        const activeIndex = activeItems.findIndex(
-          (item) => item.id === active.id
-        );
-        const overIndex = overItems.findIndex((item) => item.id === over.id);
-        const newActiveItems = activeItems.filter(
-          (_, index) => index !== activeIndex
-        );
-        const newOverItems = [
-          ...overItems.slice(0, overIndex),
-          activeItems[activeIndex],
-          ...overItems.slice(overIndex),
-        ];
-
-        const newColumns = prevColumns.map((column) => {
-          if (column.id === activeContainer) {
-            column.items = newActiveItems;
-          }
-          if (column.id === overContainer) {
-            column.items = newOverItems;
-          }
-          return column;
-        });
-
-        return newColumns;
-      });
-    } else {
-      // if the dragged item stays in the same container
-      setBoardColumn((prevColumns) => {
-        const activeColumn = prevColumns.find(
-          (column) => column.id === activeContainer
-        );
-        if (!activeColumn) return prevColumns;
-        const columnItems = activeColumn.items;
-        const oldIndex = columnItems.findIndex((item) => item.id === active.id);
-        const newIndex = columnItems.findIndex((item) => item.id === over.id);
-        const newColumns = prevColumns.map((column) => {
-          if (column.id === activeContainer) {
-            column.items = arrayMove(columnItems, oldIndex, newIndex);
-          }
-          return column;
-        });
-
-        return newColumns;
-      });
-    }
-    setActiveId(null);
-  };
-
   return (
     <div>
       <div
@@ -326,8 +188,10 @@ export const Board = () => {
         <DndContext
           sensors={sensors}
           collisionDetection={closestCorners}
-          onDragEnd={handleDragEnd}
-          onDragStart={handleDragStart}
+          onDragEnd={(e) =>
+            handleDragEnd(e, boardColumns, setBoardColumn, setActiveId)
+          }
+          onDragStart={(e) => handleDragStart(e, setActiveId)}
         >
           <SortableContext items={boardColumns.map((i) => i.id)}>
             {boardColumns.map((container) => (

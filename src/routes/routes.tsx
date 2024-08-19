@@ -3,7 +3,7 @@ import { NavBar } from "@/components";
 import { Login } from "@/pages";
 import { ProtectedRoute } from "./ProtectedRoute";
 import { Dashboard } from "@/pages";
-import { Board } from "@/pages/Board";
+import { Board } from "@/pages";
 
 const router = createBrowserRouter([
   {
