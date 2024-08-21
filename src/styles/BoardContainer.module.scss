@@ -3,13 +3,16 @@
 .wrapper {
   width: 300px;
   flex-shrink: 0;
+  background-color: #fbfbfb;
+  padding: 0.5rem;
+  border-radius: 10px;
   + .wrapper {
     margin-left: 1rem;
   }
 }
 
 .header {
-  background-color: #f4f4f4;
+  background-color: #f0f0f0;
   border-radius: 10px;
   display: flex;
   justify-content: space-between;
@@ -40,4 +43,9 @@
       outline: none;
     }
   }
+}
+
+.add {
+  width: 100%;
+  background-color: $border-gray;
 }

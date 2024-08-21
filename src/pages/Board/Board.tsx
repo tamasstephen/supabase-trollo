@@ -102,19 +102,19 @@ export const Board = () => {
   ) => {
     e.preventDefault();
     if (!columnId) {
-      //TODO: handle existing board card
       return;
     }
     const boardTitle = e.currentTarget.elements.boardColumnTitle.value;
+    // TODO: remove when implement item db requests
     const isAlreadyPresent = boardColumns.find((column) => {
       return column.items.find(
         (item) => item.id.replace("-card", "") === boardTitle
       );
     });
     if (isAlreadyPresent) {
-      // TODO: implement error case
       return;
     }
+    // end TODO
     const columnToEdit = boardColumns.find((col) => col.id === columnId);
     if (!columnToEdit) return;
     columnToEdit.items.push({ id: `${boardTitle}-card`, title: boardTitle });
@@ -133,6 +133,7 @@ export const Board = () => {
   const addBoardColumn = async (e: React.FormEvent<BoardColumnFormElement>) => {
     e.preventDefault();
     const boardTitle = e.currentTarget.elements.boardColumnTitle.value;
+    //TODO: implement form check
     if (!boardTitle) return;
 
     const newColumn = await saveBoardColumn(
@@ -248,7 +249,7 @@ export const Board = () => {
                   id={container.id}
                   items={container.items.map((i) => i.id)}
                 >
-                  <div style={{ minHeight: "100px", minWidth: "100%" }}>
+                  <div className={styles.listcard}>
                     {container.items.map((i) => (
                       <BoardListCard title={i.title} id={i.id} key={i.id} />
                     ))}

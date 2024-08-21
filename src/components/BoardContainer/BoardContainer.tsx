@@ -51,7 +51,9 @@ export const BoardContainer = ({
       </div>
 
       {children}
-      <button onClick={() => onAddItem()}>Add Item</button>
+      <button className={styles.add} onClick={() => onAddItem()}>
+        Add Item
+      </button>
     </div>
   );
 };

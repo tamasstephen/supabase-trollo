@@ -9,7 +9,7 @@
 }
 
 .addList {
-  background-color: #d3d3d3;
+  background-color: $border-gray;
   padding: 0.875rem;
   font-size: 0.875rem;
   font-weight: 700;
@@ -17,4 +17,9 @@
   width: 150px;
   height: 3.125rem;
   flex-shrink: 0;
+}
+
+.listcard {
+  min-height: 100px;
+  min-width: 100%;
 }
