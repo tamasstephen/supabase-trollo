@@ -2,12 +2,15 @@ import { UniqueIdentifier } from "@dnd-kit/core";
 import { useSortable } from "@dnd-kit/sortable";
 import { PropsWithChildren } from "react";
 import { CSS } from "@dnd-kit/utilities";
+import styles from "@/styles/BoardContainer.module.scss";
+import DeleteIcon from "@/assets/delete.svg";
 
 interface ContainerProps extends PropsWithChildren {
   id: string | UniqueIdentifier;
   title: string;
   description?: string;
   onAddItem: () => void;
+  onDelete: () => void;
 }
 
 export const BoardContainer = ({
@@ -16,6 +19,7 @@ export const BoardContainer = ({
   title,
   description,
   onAddItem,
+  onDelete,
 }: ContainerProps) => {
   const { attributes, setNodeRef, listeners, transform, transition } =
     useSortable({
@@ -33,14 +37,17 @@ export const BoardContainer = ({
       style={{
         transition,
         transform: CSS.Translate.toString(transform),
-        margin: "32px",
       }}
+      className={styles.wrapper}
     >
-      <div style={{ border: "1px solid black", padding: "1rem" }}>
-        <div>
-          <h1>{title}</h1>
-          <p>{description}</p>
+      <div>
+        <div className={styles.header}>
+          <h2>{title}</h2>
+          <button className={styles.close} onClick={onDelete}>
+            <DeleteIcon />
+          </button>
         </div>
+        {description && <p>{description}</p>}
       </div>
 
       {children}

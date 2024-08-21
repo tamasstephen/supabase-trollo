@@ -31,6 +31,8 @@ import {
   useSaveBoardColumn,
   useUpdateBoardColumn,
 } from "@/hooks";
+import { useDeleteBoardColumn } from "@/hooks/api/useDeleteBoardColumn";
+import { BoardPrefixes } from "@/constants/constants";
 
 enum BoardModalContent {
   EMPTY,
@@ -54,8 +56,9 @@ export const Board = () => {
     setBoardColumn
   );
   const { error: updateError, updateBoardColumn } = useUpdateBoardColumn();
+  const { error: saveError, saveBoardColumn } = useSaveBoardColumn();
+  const { error: deleteError, deleteBoardColumn } = useDeleteBoardColumn();
   const { supabaseClient } = useAuthContext();
-  const { saveBoardColumn } = useSaveBoardColumn();
   const sensors = useSensors(
     useSensor(PointerSensor, {
       activationConstraint: {
@@ -89,6 +92,9 @@ export const Board = () => {
   if (!supabaseClient) {
     return <>no client</>;
   }
+
+  const sanitizeBoardId = (containerId: string) =>
+    parseInt(containerId.replace(BoardPrefixes.COLUMN, ""));
 
   const addBoardItem = (
     e: React.FormEvent<BoardColumnFormElement>,
@@ -139,7 +145,6 @@ export const Board = () => {
     );
 
     if (!newColumn) {
-      // TODO: handle request error
       return;
     }
 
@@ -154,7 +159,26 @@ export const Board = () => {
     ]);
   };
 
-  if (error || updateError) {
+  const deleteBoardContainer = async (containerId: string) => {
+    await deleteBoardColumn(sanitizeBoardId(containerId), supabaseClient);
+    setBoardColumn((prevColumns) => {
+      const newColumns = prevColumns
+        .filter((currentContainer) => containerId !== currentContainer.id)
+        .map((container, idx) => {
+          container.index = idx;
+          return container;
+        });
+      newColumns.forEach((column) =>
+        updateBoardColumn({
+          id: sanitizeBoardId(column.id),
+          index: column.index,
+        })
+      );
+      return newColumns;
+    });
+  };
+
+  if (error || saveError || updateError || deleteError) {
     return <Error />;
   }
 
@@ -222,6 +246,7 @@ export const Board = () => {
                   setIsModalOpen(true);
                   setSaveItemContainer(container.id);
                 }}
+                onDelete={() => deleteBoardContainer(container.id)}
                 description=""
               >
                 <SortableContext
@@ -251,6 +276,7 @@ export const Board = () => {
                   setBoardModalContent(BoardModalContent.ITEM);
                   setIsModalOpen(true);
                 }}
+                onDelete={() => {}}
               >
                 {activeContainer?.items.map((i) => (
                   <BoardListCard key={i.id} title={i.title} id={i.id} />
