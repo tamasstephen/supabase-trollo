@@ -1,4 +1,5 @@
-import { BoardType } from "@/types";
+import { BoardPrefixes } from "@/constants/constants";
+import { BoardType, UpdateColumnProps } from "@/types";
 import { DragEndEvent, DragStartEvent, UniqueIdentifier } from "@dnd-kit/core";
 import { arrayMove } from "@dnd-kit/sortable";
 import { Dispatch } from "react";
@@ -7,7 +8,8 @@ export const handleDragEnd = (
   event: DragEndEvent,
   boardColumns: BoardType[],
   setBoardColumn: Dispatch<React.SetStateAction<BoardType[]>>,
-  setActiveId: React.Dispatch<React.SetStateAction<UniqueIdentifier | null>>
+  setActiveId: React.Dispatch<React.SetStateAction<UniqueIdentifier | null>>,
+  updateBoardColumn: (payload: UpdateColumnProps) => void
 ) => {
   const { active, over } = event;
 
@@ -32,6 +34,25 @@ export const handleDragEnd = (
     if (activeContainerIndex === -1 || overContainerIndex === -1) {
       return;
     }
+
+    const currentActiveContainerId = parseInt(
+      boardColumns[activeContainerIndex].id.replace(BoardPrefixes.COLUMN, "")
+    );
+    const currentOverContainerId = parseInt(
+      boardColumns[overContainerIndex].id.replace(BoardPrefixes.COLUMN, "")
+    );
+
+    //update index of active container with the index of over container
+    updateBoardColumn({
+      index: overContainerIndex,
+      id: currentActiveContainerId,
+    });
+
+    //update index of active container with the index of over container
+    updateBoardColumn({
+      index: activeContainerIndex,
+      id: currentOverContainerId,
+    });
 
     const newItems = [...boardColumns];
     const newArray = arrayMove(

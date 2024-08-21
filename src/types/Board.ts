@@ -14,4 +14,11 @@ export type BoardType = {
   id: string;
   title: string;
   items: BoardItem[];
+  index: number;
 };
+
+export interface UpdateColumnProps {
+  index?: number;
+  title?: string;
+  id: number;
+}

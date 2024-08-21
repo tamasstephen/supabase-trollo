@@ -9,19 +9,28 @@ import {
   UniqueIdentifier,
   DragOverlay,
 } from "@dnd-kit/core";
+import { Error, Loading } from "@/components";
 
 import {
   SortableContext,
   sortableKeyboardCoordinates,
 } from "@dnd-kit/sortable";
 import { handleDragEnd, handleDragStart } from "./handlers";
-import { AddBoardItem, BoardListCard, Portal } from "@/components";
-import { BoardContainer } from "@/components";
-import { AddBoardColumn } from "@/components";
+import {
+  AddBoardItem,
+  BoardListCard,
+  Portal,
+  BoardContainer,
+  AddBoardColumn,
+} from "@/components";
 import { BoardColumnFormElement, BoardType } from "@/types";
 import { useParams } from "react-router-dom";
-import { useSaveBoardColumn } from "@/hooks";
-import { useAuthContext } from "@/hooks";
+import {
+  useAuthContext,
+  useFetchBoardColumns,
+  useSaveBoardColumn,
+  useUpdateBoardColumn,
+} from "@/hooks";
 
 enum BoardModalContent {
   EMPTY,
@@ -38,11 +47,15 @@ export const Board = () => {
   const [saveItemContainer, setSaveItemContainer] = useState<string | null>(
     null
   );
-  const [boardColumns, setBoardColumn] = useState<BoardType[]>([]);
-  const { supabaseClient } = useAuthContext();
   const { id } = useParams();
+  const [boardColumns, setBoardColumn] = useState<BoardType[]>([]);
+  const { error, loading } = useFetchBoardColumns(
+    parseInt(id as string),
+    setBoardColumn
+  );
+  const { error: updateError, updateBoardColumn } = useUpdateBoardColumn();
+  const { supabaseClient } = useAuthContext();
   const { saveBoardColumn } = useSaveBoardColumn();
-
   const sensors = useSensors(
     useSensor(PointerSensor, {
       activationConstraint: {
@@ -115,13 +128,6 @@ export const Board = () => {
     e.preventDefault();
     const boardTitle = e.currentTarget.elements.boardColumnTitle.value;
     if (!boardTitle) return;
-    const isAlreadyPresent = boardColumns.find(
-      (column) => column.title === boardTitle
-    );
-    if (isAlreadyPresent) {
-      // TODO: implement error case
-      return;
-    }
 
     const newColumn = await saveBoardColumn(
       {
@@ -143,9 +149,18 @@ export const Board = () => {
         id: `${newColumn.id}-container`,
         title: newColumn.title,
         items: [],
+        index: boardColumns.length + 1,
       },
     ]);
   };
+
+  if (error || updateError) {
+    return <Error />;
+  }
+
+  if (loading) {
+    return <Loading />;
+  }
 
   return (
     <div>
@@ -186,7 +201,13 @@ export const Board = () => {
           sensors={sensors}
           collisionDetection={closestCorners}
           onDragEnd={(e) =>
-            handleDragEnd(e, boardColumns, setBoardColumn, setActiveId)
+            handleDragEnd(
+              e,
+              boardColumns,
+              setBoardColumn,
+              setActiveId,
+              updateBoardColumn
+            )
           }
           onDragStart={(e) => handleDragStart(e, setActiveId)}
         >
