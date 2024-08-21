@@ -10,7 +10,7 @@ import {
   DragOverlay,
 } from "@dnd-kit/core";
 import { Error, Loading } from "@/components";
-
+import styles from "@/styles/Board.module.scss";
 import {
   SortableContext,
   sortableKeyboardCoordinates,
@@ -188,20 +188,15 @@ export const Board = () => {
 
   return (
     <div>
-      <div
-        style={{
-          display: "flex",
-          justifyContent: "center",
-          alignItems: "center",
-        }}
-      >
+      <div className={styles.container}>
         <button
+          className={styles.addList}
           onClick={() => {
             setBoardModalContent(BoardModalContent.COLUMN);
             setIsModalOpen(true);
           }}
         >
-          open modal
+          Add list
         </button>
         {isModalOpen && (
           <Portal
