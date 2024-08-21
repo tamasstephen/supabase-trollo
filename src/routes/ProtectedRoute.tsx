@@ -3,7 +3,11 @@ import { useAuthContext } from "@/hooks";
 import { PropsWithChildren } from "react";
 
 export const ProtectedRoute = ({ children }: PropsWithChildren) => {
-  const { isSignedIn } = useAuthContext();
+  const { isSignedIn, loading: contextLoading } = useAuthContext();
+
+  if (contextLoading) {
+    return <p>Loading</p>;
+  }
 
   if (!isSignedIn) {
     return <Navigate to="/login" replace />;

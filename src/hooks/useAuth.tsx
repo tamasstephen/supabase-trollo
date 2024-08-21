@@ -10,13 +10,16 @@ const supabase = createClient(
 export const useAuth = (): AuthContextProps => {
   const [isSignedIn, setIsLoggedIn] = useState(false);
   const [supabaseClient] = useState(supabase);
+  const [loading, setLoading] = useState(true);
 
   const setToSignedIn = () => {
     localStorage.setItem("auth", "signedIn");
+    setLoading(false);
     setIsLoggedIn(true);
   };
   const setToSignedOut = () => {
     localStorage.removeItem("auth");
+    setLoading(false);
     setIsLoggedIn(false);
   };
 
@@ -24,7 +27,7 @@ export const useAuth = (): AuthContextProps => {
     if (localStorage.getItem("auth")) {
       setToSignedIn();
     }
-  });
+  }, [setLoading]);
 
-  return { setToSignedIn, setToSignedOut, isSignedIn, supabaseClient };
+  return { setToSignedIn, setToSignedOut, isSignedIn, supabaseClient, loading };
 };

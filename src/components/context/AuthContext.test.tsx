@@ -32,6 +32,7 @@ describe("AuthContext", () => {
       setToSignedIn: mockSetToSignedIn,
       setToSignedOut: mockSetToSignedOut,
       supabaseClient,
+      loading: false,
     });
     render(
       <AuthContextProvider>
@@ -49,6 +50,7 @@ describe("AuthContext", () => {
       setToSignedIn: mockSetToSignedIn,
       setToSignedOut: mockSetToSignedOut,
       supabaseClient: null,
+      loading: false,
     });
     render(
       <AuthContextProvider>
@@ -69,6 +71,7 @@ describe("AuthContext", () => {
       setToSignedIn: mockSetToSignedIn,
       setToSignedOut: mockSetToSignedOut,
       supabaseClient: null,
+      loading: false,
     });
     render(
       <AuthContextProvider>
@@ -88,6 +91,7 @@ describe("AuthContext", () => {
       setToSignedIn: mockSetToSignedIn,
       setToSignedOut: mockSetToSignedOut,
       supabaseClient: null,
+      loading: false,
     });
     render(
       <AuthContextProvider>

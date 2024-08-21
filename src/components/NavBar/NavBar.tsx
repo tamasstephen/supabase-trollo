@@ -24,6 +24,7 @@ export const NavBar = () => {
       setToSignedIn();
     } else {
       setToSignedOut();
+      navigate("/");
     }
   };
 
@@ -31,14 +32,12 @@ export const NavBar = () => {
     if (supabase) {
       supabase.auth.getSession().then(({ data: { session } }) => {
         handleSessionChange(session);
-        navigate("/");
       });
 
       const {
         data: { subscription },
       } = supabase.auth.onAuthStateChange((_event, session) => {
         handleSessionChange(session);
-        navigate("/");
         setDbSubscription(subscription);
       });
     }
