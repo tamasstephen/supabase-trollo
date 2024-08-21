@@ -274,9 +274,11 @@ export const Board = () => {
                 }}
                 onDelete={() => {}}
               >
-                {activeContainer?.items.map((i) => (
-                  <BoardListCard key={i.id} title={i.title} id={i.id} />
-                ))}
+                <div className={styles.listcard}>
+                  {activeContainer?.items.map((i) => (
+                    <BoardListCard key={i.id} title={i.title} id={i.id} />
+                  ))}
+                </div>
               </BoardContainer>
             )}
           </DragOverlay>

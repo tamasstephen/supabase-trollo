@@ -9,6 +9,10 @@
   + .wrapper {
     margin-left: 1rem;
   }
+
+  &.dragged {
+    opacity: 0.2;
+  }
 }
 
 .header {
