@@ -1,14 +1,13 @@
 import { BoardPayload } from "@/types";
 import { useState } from "react";
 import { useAuthContext } from "../useAuthContext";
+import { TaskPayload } from "@/types/Board";
 
 interface BoardColumnPayload {
   title: string;
   index: number;
   board_id: number;
 }
-
-interface TaskPayload {}
 
 type UseSavePayload = BoardColumnPayload | BoardPayload | TaskPayload;
 

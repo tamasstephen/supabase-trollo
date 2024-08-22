@@ -5,3 +5,4 @@ export { useFetchBoards } from "./api";
 export { useSaveBoardColumn } from "./api";
 export { useFetchBoardColumns } from "./api";
 export { useUpdateBoardColumn } from "./api";
+export { useSaveTask } from "./api";

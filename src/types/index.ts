@@ -6,5 +6,7 @@ export type {
   UpdateColumnProps,
   BoardColumnPayload,
   BoardPayload,
+  TaskPayload,
+  Task,
 } from "./Board";
 export type { AuthContextProps } from "./AuthContext";

@@ -30,3 +30,13 @@ export interface BoardColumnPayload {
 }
 
 export type BoardPayload = Omit<Board, "image" | "id">;
+
+export interface Task {
+  board_id: number;
+  id: number;
+  title: string;
+  description?: string;
+  index: number;
+}
+
+export type TaskPayload = Omit<Task, "id">;

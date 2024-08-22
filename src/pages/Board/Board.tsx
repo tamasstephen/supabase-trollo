@@ -30,6 +30,7 @@ import {
   useFetchBoardColumns,
   useSaveBoardColumn,
   useUpdateBoardColumn,
+  useSaveTask,
 } from "@/hooks";
 import { useDeleteBoardColumn } from "@/hooks/api/useDeleteBoardColumn";
 import { BoardPrefixes } from "@/constants/constants";
@@ -58,6 +59,7 @@ export const Board = () => {
   const { error: updateError, updateBoardColumn } = useUpdateBoardColumn();
   const { error: saveError, saveBoardColumn } = useSaveBoardColumn();
   const { error: deleteError, deleteBoardColumn } = useDeleteBoardColumn();
+  const { error: taskError, saveTask } = useSaveTask();
   const { supabaseClient } = useAuthContext();
   const sensors = useSensors(
     useSensor(PointerSensor, {
@@ -71,6 +73,9 @@ export const Board = () => {
       coordinateGetter: sortableKeyboardCoordinates,
     })
   );
+
+  const hasToShowError =
+    error || saveError || updateError || deleteError || taskError;
 
   const findActiveBoardListCard = (id: string) => {
     const card = boardColumns
@@ -96,7 +101,7 @@ export const Board = () => {
   const sanitizeBoardId = (containerId: string) =>
     parseInt(containerId.replace(BoardPrefixes.COLUMN, ""));
 
-  const addBoardItem = (
+  const addNewTask = async (
     e: React.FormEvent<BoardColumnFormElement>,
     columnId: UniqueIdentifier | null
   ) => {
@@ -105,19 +110,16 @@ export const Board = () => {
       return;
     }
     const boardTitle = e.currentTarget.elements.boardColumnTitle.value;
-    // TODO: remove when implement item db requests
-    const isAlreadyPresent = boardColumns.find((column) => {
-      return column.items.find(
-        (item) => item.id.replace("-card", "") === boardTitle
-      );
-    });
-    if (isAlreadyPresent) {
-      return;
-    }
-    // end TODO
     const columnToEdit = boardColumns.find((col) => col.id === columnId);
     if (!columnToEdit) return;
-    columnToEdit.items.push({ id: `${boardTitle}-card`, title: boardTitle });
+    const task = await saveTask({
+      index: columnToEdit.items.length,
+      title: boardTitle,
+      board_id: sanitizeBoardId(columnId as string),
+    });
+    if (!task) return;
+    const newId = `${BoardPrefixes.ITEM}${task.id}`;
+    columnToEdit.items.push({ ...task, id: newId });
 
     setBoardColumn((prevColumns) => {
       const newColumns = prevColumns.map((column) => {
@@ -136,14 +138,11 @@ export const Board = () => {
     //TODO: implement form check
     if (!boardTitle) return;
 
-    const newColumn = await saveBoardColumn(
-      {
-        board_id: parseInt(id as string),
-        title: boardTitle,
-        index: boardColumns.length,
-      },
-      supabaseClient
-    );
+    const newColumn = await saveBoardColumn({
+      board_id: parseInt(id as string),
+      title: boardTitle,
+      index: boardColumns.length,
+    });
 
     if (!newColumn) {
       return;
@@ -179,7 +178,7 @@ export const Board = () => {
     });
   };
 
-  if (error || saveError || updateError || deleteError) {
+  if (hasToShowError) {
     return <Error />;
   }
 
@@ -211,7 +210,7 @@ export const Board = () => {
             )}
             {boardModalContent === BoardModalContent.ITEM && (
               <AddBoardItem
-                callback={addBoardItem}
+                callback={addNewTask}
                 containerId={saveItemContainer}
               />
             )}
