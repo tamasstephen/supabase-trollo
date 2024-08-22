@@ -1,19 +1,25 @@
 import { useAuthContext } from "..";
-import { Board, BoardsFormElement } from "@/types";
+import { Board, BoardPayload, BoardsFormElement } from "@/types";
 import { SupabaseClient } from "@supabase/supabase-js";
-import { useState } from "react";
-
-type Payload = Omit<Board, "image" | "id">;
+import { useEffect, useState } from "react";
+import { useSave } from "./useSave";
 
 export const useSaveBoard = () => {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(false);
   const { supabaseClient } = useAuthContext();
+  const { error: saveColumnError, saveToDb } = useSave<Board>();
+
+  useEffect(() => {
+    if (saveColumnError) {
+      setError(saveColumnError);
+    }
+  }, [saveColumnError]);
 
   const saveBoardBackGround = async (
     boardCover: File,
     supabaseClient: SupabaseClient,
-    payload: Payload
+    payload: BoardPayload
   ) => {
     try {
       const { data, error } = await supabaseClient.storage
@@ -32,15 +38,9 @@ export const useSaveBoard = () => {
     }
   };
 
-  const saveBoardData = async (
-    payload: Payload,
-    supabaseClient: SupabaseClient
-  ) => {
-    const response = await supabaseClient.from("boards").insert(payload);
-    if (!response || response.error) {
-      setError(true);
-      return;
-    }
+  const saveBoardData = async (payload: BoardPayload) => {
+    const response = saveToDb(payload, "boards");
+    return response;
   };
 
   const saveBoard = async (event: React.FormEvent<BoardsFormElement>) => {
@@ -50,7 +50,7 @@ export const useSaveBoard = () => {
     }
     event.preventDefault();
     setLoading(true);
-    const payload: Payload = { name: "" };
+    const payload: BoardPayload = { name: "" };
     payload.name = event.currentTarget.elements.boardName.value;
     if (event.currentTarget.elements.boardCover.files?.length) {
       const boardCover = event.currentTarget.elements.boardCover.files[0];
@@ -64,7 +64,7 @@ export const useSaveBoard = () => {
         return;
       }
     }
-    await saveBoardData(payload, supabaseClient);
+    await saveBoardData(payload);
     setLoading(false);
   };
 

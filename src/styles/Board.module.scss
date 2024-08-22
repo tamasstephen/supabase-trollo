@@ -17,6 +17,12 @@
   width: 150px;
   height: 3.125rem;
   flex-shrink: 0;
+  transition: background-color 0.2s ease-in-out;
+
+  &:hover {
+    background-color: $cta-hover-gray;
+    border: none;
+  }
 }
 
 .listcard {

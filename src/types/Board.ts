@@ -22,3 +22,11 @@ export interface UpdateColumnProps {
   title?: string;
   id: number;
 }
+
+export interface BoardColumnPayload {
+  title: string;
+  index: number;
+  board_id: number;
+}
+
+export type BoardPayload = Omit<Board, "image" | "id">;

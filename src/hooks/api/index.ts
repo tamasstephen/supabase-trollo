@@ -3,3 +3,4 @@ export { useFetchBoards } from "./useFetchBoards";
 export { useSaveBoardColumn } from "./useSaveBoardColumn";
 export { useFetchBoardColumns } from "./useFetchBoardColumns";
 export { useUpdateBoardColumn } from "./useUpdateBoardColumn";
+export { useSaveTask } from "./useSaveTask";
