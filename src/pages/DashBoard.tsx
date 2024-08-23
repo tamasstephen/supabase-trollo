@@ -1,10 +1,13 @@
 import { SyntheticEvent, useState } from "react";
 import { useFetchBoards } from "@/hooks/";
 import styles from "@/styles/Dashboard.module.scss";
-import { Loading, Portal } from "@/components";
-import { SaveBoardModal } from "@/components";
-import { BoardCard } from "@/components/BoardCard";
-import { Error } from "@/components/";
+import {
+  Error,
+  SaveBoardModal,
+  BoardCard,
+  Loading,
+  Portal,
+} from "@/components/";
 import { useNavigate } from "react-router-dom";
 
 export const Dashboard = () => {

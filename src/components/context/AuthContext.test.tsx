@@ -1,7 +1,6 @@
-import { useAuthContext } from "@/hooks";
+import { useAuthContext, useAuth } from "@/hooks";
 import { AuthContextProvider } from "./AuthContext";
 import { render, screen } from "@testing-library/react";
-import { useAuth } from "@/hooks";
 import userEvent from "@testing-library/user-event";
 
 const mockSetToSignedIn = jest.fn();
