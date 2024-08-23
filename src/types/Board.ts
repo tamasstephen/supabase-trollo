@@ -9,7 +9,7 @@ export interface Board extends DbObject {
 }
 
 export interface BoardColumnType extends DbObject {
-  items: Task[];
+  items: DraggableTask[];
   index: number;
 }
 

@@ -103,8 +103,8 @@ export const Board = () => {
     return <>no client</>;
   }
 
-  const sanitizeBoardId = (containerId: string) =>
-    parseInt(containerId.replace(BoardPrefixes.COLUMN, ""));
+  const sanitizeDraggableId = (containerId: string, prefix?: BoardPrefixes) =>
+    parseInt(containerId.replace(prefix ? prefix : BoardPrefixes.COLUMN, ""));
 
   const addNewTask = async (
     e: React.FormEvent<BoardColumnFormElement>,
@@ -121,7 +121,7 @@ export const Board = () => {
       {
         index: columnToEdit.items.length,
         title: boardTitle,
-        board_id: sanitizeBoardId(columnId as string),
+        board_id: sanitizeDraggableId(columnId as string),
       },
       TableNames.TASK
     );
@@ -171,7 +171,12 @@ export const Board = () => {
   };
 
   const deleteBoardContainer = async (containerId: string) => {
-    await deleteBoardColumn(sanitizeBoardId(containerId), supabaseClient);
+    await deleteBoardColumn(
+      sanitizeDraggableId(containerId),
+      boardColumns
+        .find((column) => column.id === containerId)
+        ?.items.map((item) => sanitizeDraggableId(item.id, BoardPrefixes.ITEM))
+    );
     setBoardColumn((prevColumns) => {
       const newColumns = prevColumns
         .filter((currentContainer) => containerId !== currentContainer.id)
@@ -181,7 +186,7 @@ export const Board = () => {
         });
       newColumns.forEach((column) =>
         updateBoardColumn({
-          id: sanitizeBoardId(column.id),
+          id: sanitizeDraggableId(column.id),
           index: column.index,
         })
       );

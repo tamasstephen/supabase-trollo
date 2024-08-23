@@ -1,29 +1,19 @@
-import { SupabaseClient } from "@supabase/supabase-js";
-import { useState } from "react";
+import { useDelete } from "./useDelete";
+import { TableNames } from "@/constants/constants";
 
 export const useDeleteBoardColumn = () => {
-  const [loading, setLoading] = useState(false);
-  const [error, setError] = useState(false);
+  const { deleteItem, error, loading } = useDelete();
 
   const deleteBoardColumn = async (
     boardId: number,
-    supabaseClient: SupabaseClient
+    tasks: number[] | undefined
   ) => {
-    if (!supabaseClient) {
-      setError(true);
+    if (tasks) {
+      for (const taskId of tasks) {
+        await deleteItem(taskId, TableNames.TASK);
+      }
     }
-    // TODO: delete all related tasks
-    setLoading(true);
-
-    const response = await supabaseClient
-      .from("board_column")
-      .delete()
-      .eq("id", boardId);
-
-    if (response.error) {
-      setError(true);
-    }
-    setLoading(false);
+    await deleteItem(boardId, TableNames.COLUMN);
   };
 
   return { error, loading, deleteBoardColumn };

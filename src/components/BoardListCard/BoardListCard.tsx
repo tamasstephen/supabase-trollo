@@ -1,6 +1,7 @@
 import { UniqueIdentifier } from "@dnd-kit/core";
 import { useSortable } from "@dnd-kit/sortable";
 import { CSS } from "@dnd-kit/utilities";
+import styles from "@/styles/BoardListCard.module.scss";
 
 type ItemsType = {
   id: UniqueIdentifier;
@@ -23,9 +24,8 @@ export const BoardListCard = ({ id, title }: ItemsType) => {
       style={{
         transition,
         transform: CSS.Translate.toString(transform),
-        padding: "32px",
-        margin: "32px",
       }}
+      className={styles.card}
     >
       <div className="flex items-center justify-between">{title}</div>
     </div>
