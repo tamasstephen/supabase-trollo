@@ -21,13 +21,19 @@ export const BoardContainer = ({
   onAddItem,
   onDelete,
 }: ContainerProps) => {
-  const { attributes, setNodeRef, listeners, transform, transition } =
-    useSortable({
-      id: id,
-      data: {
-        type: "container",
-      },
-    });
+  const {
+    attributes,
+    setNodeRef,
+    listeners,
+    transform,
+    transition,
+    isDragging,
+  } = useSortable({
+    id: id,
+    data: {
+      type: "container",
+    },
+  });
 
   return (
     <div
@@ -38,7 +44,7 @@ export const BoardContainer = ({
         transition,
         transform: CSS.Translate.toString(transform),
       }}
-      className={styles.wrapper}
+      className={`${styles.wrapper} ${isDragging ? styles.dragged : ""}`}
     >
       <div>
         <div className={styles.header}>

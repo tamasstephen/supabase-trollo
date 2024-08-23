@@ -1,4 +1,10 @@
 export enum BoardPrefixes {
   COLUMN = "container-",
-  ITEM = "item-",
+  ITEM = "card-",
+}
+
+export enum TableNames {
+  COLUMN = "board_column",
+  TASK = "task",
+  BOARD = "board",
 }

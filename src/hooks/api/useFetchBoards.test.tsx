@@ -7,8 +7,8 @@ import { renderHook, waitFor } from "@testing-library/react";
 const mockUseAuthContext = jest.spyOn(hooks, "useAuthContext");
 
 const mockedData: Board[] = [
-  { name: "First Board", id: 1, background: "/path/1" },
-  { name: "Second Board", id: 2 },
+  { title: "First Board", id: 1, background: "/path/1" },
+  { title: "Second Board", id: 2 },
 ];
 
 const mockedDownload = jest.fn(() => ({

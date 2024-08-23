@@ -15,5 +15,6 @@ module.exports = {
       { allowConstantExport: true },
     ],
     "no-console": "warn",
+    "no-duplicate-imports": "error",
   },
 };

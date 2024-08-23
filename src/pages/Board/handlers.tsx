@@ -1,15 +1,20 @@
-import { BoardPrefixes } from "@/constants/constants";
-import { BoardType, UpdateColumnProps } from "@/types";
+import { BoardPrefixes, TableNames } from "@/constants/constants";
+import { DraggableBoardContainer, UpdateColumnProps } from "@/types";
+import { UpdateTaskProps } from "@/types/Board";
 import { DragEndEvent, DragStartEvent, UniqueIdentifier } from "@dnd-kit/core";
 import { arrayMove } from "@dnd-kit/sortable";
 import { Dispatch } from "react";
+import { updateContainerTasks } from "./helpers";
 
 export const handleDragEnd = (
   event: DragEndEvent,
-  boardColumns: BoardType[],
-  setBoardColumn: Dispatch<React.SetStateAction<BoardType[]>>,
+  boardColumns: DraggableBoardContainer[],
+  setBoardColumn: Dispatch<React.SetStateAction<DraggableBoardContainer[]>>,
   setActiveId: React.Dispatch<React.SetStateAction<UniqueIdentifier | null>>,
-  updateBoardColumn: (payload: UpdateColumnProps) => void
+  updateItem: (
+    payload: UpdateColumnProps | UpdateTaskProps,
+    tableName: TableNames
+  ) => void
 ) => {
   const { active, over } = event;
 
@@ -43,16 +48,22 @@ export const handleDragEnd = (
     );
 
     //update index of active container with the index of over container
-    updateBoardColumn({
-      index: overContainerIndex,
-      id: currentActiveContainerId,
-    });
+    updateItem(
+      {
+        index: overContainerIndex,
+        id: currentActiveContainerId,
+      },
+      TableNames.COLUMN
+    );
 
     //update index of active container with the index of over container
-    updateBoardColumn({
-      index: activeContainerIndex,
-      id: currentOverContainerId,
-    });
+    updateItem(
+      {
+        index: activeContainerIndex,
+        id: currentOverContainerId,
+      },
+      TableNames.COLUMN
+    );
 
     const newItems = [...boardColumns];
     const newArray = arrayMove(
@@ -88,9 +99,11 @@ export const handleDragEnd = (
       const newColumns = prevColumns.map((column) => {
         if (column.id === active?.data?.current?.sortable.containerId) {
           column.items = newActiveItems;
+          updateContainerTasks(column, updateItem);
         }
         if (column.id === hoverTargetId) {
           column.items = newOverItems;
+          updateContainerTasks(column, updateItem);
         }
         return column;
       });
@@ -127,9 +140,11 @@ export const handleDragEnd = (
       const newColumns = prevColumns.map((column) => {
         if (column.id === activeContainer) {
           column.items = newActiveItems;
+          updateContainerTasks(column, updateItem);
         }
         if (column.id === overContainer) {
           column.items = newOverItems;
+          updateContainerTasks(column, updateItem);
         }
         return column;
       });
@@ -149,6 +164,7 @@ export const handleDragEnd = (
       const newColumns = prevColumns.map((column) => {
         if (column.id === activeContainer) {
           column.items = arrayMove(columnItems, oldIndex, newIndex);
+          updateContainerTasks(column, updateItem);
         }
         return column;
       });

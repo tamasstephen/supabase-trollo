@@ -1,9 +1,7 @@
 import { createBrowserRouter, RouterProvider } from "react-router-dom";
 import { NavBar } from "@/components";
-import { Login } from "@/pages";
+import { Login, Dashboard, Board } from "@/pages";
 import { ProtectedRoute } from "./ProtectedRoute";
-import { Dashboard } from "@/pages";
-import { Board } from "@/pages";
 
 const router = createBrowserRouter([
   {

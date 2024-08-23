@@ -6,8 +6,13 @@
   background-color: #fbfbfb;
   padding: 0.5rem;
   border-radius: 10px;
+  cursor: pointer;
   + .wrapper {
     margin-left: 1rem;
+  }
+
+  &.dragged {
+    opacity: 0.2;
   }
 }
 
@@ -48,4 +53,10 @@
 .add {
   width: 100%;
   background-color: $border-gray;
+  transition: all 0.2s ease-in-out;
+
+  &:hover {
+    background-color: $cta-hover-gray;
+    border: none;
+  }
 }

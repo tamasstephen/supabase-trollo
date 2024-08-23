@@ -9,7 +9,6 @@ import {
   UniqueIdentifier,
   DragOverlay,
 } from "@dnd-kit/core";
-import { Error, Loading } from "@/components";
 import styles from "@/styles/Board.module.scss";
 import {
   SortableContext,
@@ -22,17 +21,29 @@ import {
   Portal,
   BoardContainer,
   AddBoardColumn,
+  Error,
+  Loading,
 } from "@/components";
-import { BoardColumnFormElement, BoardType } from "@/types";
+import {
+  BoardColumnFormElement,
+  DraggableBoardContainer,
+  BoardColumnType,
+  Task,
+} from "@/types";
 import { useParams } from "react-router-dom";
 import {
   useAuthContext,
   useFetchBoardColumns,
-  useSaveBoardColumn,
-  useUpdateBoardColumn,
+  useUpdate,
+  useSave,
+  useDeleteBoardColumn,
 } from "@/hooks";
-import { useDeleteBoardColumn } from "@/hooks/api/useDeleteBoardColumn";
-import { BoardPrefixes } from "@/constants/constants";
+import { BoardPrefixes, TableNames } from "@/constants";
+import {
+  findActiveBoardListCard,
+  sanitizeDraggableId,
+  findActiveContainers,
+} from "./helpers";
 
 enum BoardModalContent {
   EMPTY,
@@ -50,14 +61,19 @@ export const Board = () => {
     null
   );
   const { id } = useParams();
-  const [boardColumns, setBoardColumn] = useState<BoardType[]>([]);
+  const [boardColumns, setBoardColumn] = useState<DraggableBoardContainer[]>(
+    []
+  );
   const { error, loading } = useFetchBoardColumns(
     parseInt(id as string),
     setBoardColumn
   );
-  const { error: updateError, updateBoardColumn } = useUpdateBoardColumn();
-  const { error: saveError, saveBoardColumn } = useSaveBoardColumn();
-  const { error: deleteError, deleteBoardColumn } = useDeleteBoardColumn();
+  const { error: updateError, updateItem } = useUpdate();
+
+  const { error: deleteColumnError, deleteBoardColumn } =
+    useDeleteBoardColumn();
+
+  const { error: saveError, saveToDb } = useSave();
   const { supabaseClient } = useAuthContext();
   const sensors = useSensors(
     useSensor(PointerSensor, {
@@ -72,31 +88,20 @@ export const Board = () => {
     })
   );
 
-  const findActiveBoardListCard = (id: string) => {
-    const card = boardColumns
-      .find((board) => board.items.find((item) => item.id === id))
-      ?.items.find((item) => id === item.id);
+  const hasToShowError = error || saveError;
+  updateError || deleteColumnError;
 
-    return card;
-  };
-
-  const findActiveContainers = (activeId: string) => {
-    const container = boardColumns.find((column) => column.id === activeId);
-
-    return container;
-  };
-
-  const activeContainer = findActiveContainers(activeId as string);
-  const activeCard = findActiveBoardListCard(activeId as string);
+  const activeContainer = findActiveContainers(
+    activeId as string,
+    boardColumns
+  );
+  const activeCard = findActiveBoardListCard(activeId as string, boardColumns);
 
   if (!supabaseClient) {
     return <>no client</>;
   }
 
-  const sanitizeBoardId = (containerId: string) =>
-    parseInt(containerId.replace(BoardPrefixes.COLUMN, ""));
-
-  const addBoardItem = (
+  const addNewTask = async (
     e: React.FormEvent<BoardColumnFormElement>,
     columnId: UniqueIdentifier | null
   ) => {
@@ -105,19 +110,19 @@ export const Board = () => {
       return;
     }
     const boardTitle = e.currentTarget.elements.boardColumnTitle.value;
-    // TODO: remove when implement item db requests
-    const isAlreadyPresent = boardColumns.find((column) => {
-      return column.items.find(
-        (item) => item.id.replace("-card", "") === boardTitle
-      );
-    });
-    if (isAlreadyPresent) {
-      return;
-    }
-    // end TODO
     const columnToEdit = boardColumns.find((col) => col.id === columnId);
     if (!columnToEdit) return;
-    columnToEdit.items.push({ id: `${boardTitle}-card`, title: boardTitle });
+    const task = await saveToDb<Task>(
+      {
+        index: columnToEdit.items.length,
+        title: boardTitle,
+        board_id: sanitizeDraggableId(columnId as string),
+      },
+      TableNames.TASK
+    );
+    if (!task) return;
+    const newId = `${BoardPrefixes.ITEM}${task.id}`;
+    columnToEdit.items.push({ ...task, id: newId });
 
     setBoardColumn((prevColumns) => {
       const newColumns = prevColumns.map((column) => {
@@ -136,13 +141,13 @@ export const Board = () => {
     //TODO: implement form check
     if (!boardTitle) return;
 
-    const newColumn = await saveBoardColumn(
+    const newColumn = await saveToDb<BoardColumnType>(
       {
         board_id: parseInt(id as string),
         title: boardTitle,
         index: boardColumns.length,
       },
-      supabaseClient
+      TableNames.COLUMN
     );
 
     if (!newColumn) {
@@ -161,7 +166,12 @@ export const Board = () => {
   };
 
   const deleteBoardContainer = async (containerId: string) => {
-    await deleteBoardColumn(sanitizeBoardId(containerId), supabaseClient);
+    await deleteBoardColumn(
+      sanitizeDraggableId(containerId),
+      boardColumns
+        .find((column) => column.id === containerId)
+        ?.items.map((item) => sanitizeDraggableId(item.id, BoardPrefixes.ITEM))
+    );
     setBoardColumn((prevColumns) => {
       const newColumns = prevColumns
         .filter((currentContainer) => containerId !== currentContainer.id)
@@ -170,16 +180,19 @@ export const Board = () => {
           return container;
         });
       newColumns.forEach((column) =>
-        updateBoardColumn({
-          id: sanitizeBoardId(column.id),
-          index: column.index,
-        })
+        updateItem(
+          {
+            id: sanitizeDraggableId(column.id),
+            index: column.index,
+          },
+          TableNames.COLUMN
+        )
       );
       return newColumns;
     });
   };
 
-  if (error || saveError || updateError || deleteError) {
+  if (hasToShowError) {
     return <Error />;
   }
 
@@ -211,7 +224,7 @@ export const Board = () => {
             )}
             {boardModalContent === BoardModalContent.ITEM && (
               <AddBoardItem
-                callback={addBoardItem}
+                callback={addNewTask}
                 containerId={saveItemContainer}
               />
             )}
@@ -226,7 +239,7 @@ export const Board = () => {
               boardColumns,
               setBoardColumn,
               setActiveId,
-              updateBoardColumn
+              updateItem
             )
           }
           onDragStart={(e) => handleDragStart(e, setActiveId)}
@@ -274,9 +287,11 @@ export const Board = () => {
                 }}
                 onDelete={() => {}}
               >
-                {activeContainer?.items.map((i) => (
-                  <BoardListCard key={i.id} title={i.title} id={i.id} />
-                ))}
+                <div className={styles.listcard}>
+                  {activeContainer?.items.map((i) => (
+                    <BoardListCard key={i.id} title={i.title} id={i.id} />
+                  ))}
+                </div>
               </BoardContainer>
             )}
           </DragOverlay>

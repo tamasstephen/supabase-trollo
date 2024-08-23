@@ -8,3 +8,4 @@ export { BoardListCard } from "./BoardListCard";
 export { AddBoardColumn } from "./AddBoardColumn";
 export { AddBoardItem } from "./AddBoardItem";
 export { BoardContainer } from "./BoardContainer";
+export { BoardCard } from "./BoardCard";

@@ -6,16 +6,35 @@ import {
   useState,
 } from "react";
 import { useAuthContext } from "../useAuthContext";
-import { BoardType } from "@/types";
+import { DraggableBoardContainer } from "@/types";
 import { BoardPrefixes } from "@/constants/constants";
+import { BoardColumnType, DraggableTask } from "@/types/Board";
 
 export const useFetchBoardColumns = (
   boardId: number,
-  setBoardColumns: Dispatch<SetStateAction<BoardType[]>>
+  setBoardColumns: Dispatch<SetStateAction<DraggableBoardContainer[]>>
 ) => {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(false);
   const { supabaseClient } = useAuthContext();
+
+  const fetchTasks = useCallback(
+    async (id: number) => {
+      if (!supabaseClient) {
+        setError(true);
+        return;
+      }
+      const { data, error } = await supabaseClient
+        .from("task")
+        .select()
+        .eq("board_id", id);
+      if (error) {
+        setError(true);
+      }
+      return data;
+    },
+    [supabaseClient]
+  );
 
   const fetchBoardColumns = useCallback(async () => {
     if (!supabaseClient) return;
@@ -28,17 +47,36 @@ export const useFetchBoardColumns = (
       setError(true);
       return;
     }
-    const columns = data as BoardType[];
-    const idPrefixedColumns = columns
+    const columns = data as BoardColumnType[];
+    for (const column of columns) {
+      const columnTasks = await fetchTasks(column.id);
+      if (columnTasks) {
+        const tasks = columnTasks as unknown as DraggableTask[];
+        column.items = tasks.map((task) => {
+          task.id = `${BoardPrefixes.ITEM}${task.id}`;
+          return task;
+        });
+      } else {
+        column.items = [];
+      }
+    }
+    const draggableColumns = columns as unknown as DraggableBoardContainer[];
+    const idPrefixedColumns = draggableColumns
       .map((column) => {
         column.id = `${BoardPrefixes.COLUMN}${column.id}`;
-        column.items = [];
         return column;
       })
       .sort((a, b) => a.index - b.index);
     setBoardColumns(idPrefixedColumns);
     setLoading(false);
-  }, [supabaseClient, setLoading, setError, boardId, setBoardColumns]);
+  }, [
+    supabaseClient,
+    setLoading,
+    setError,
+    boardId,
+    setBoardColumns,
+    fetchTasks,
+  ]);
 
   useEffect(() => {
     if (!supabaseClient) return;
