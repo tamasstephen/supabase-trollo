@@ -44,5 +44,6 @@ type DraggableId = { id: string };
 
 export type DraggableBoardContainer = Omit<BoardColumnType, "id" | "items"> &
   DraggableId & { items: DraggableTask[] };
+
 export type DraggableTask = Omit<Task, "id" | "board_id" | "index"> &
   DraggableId;

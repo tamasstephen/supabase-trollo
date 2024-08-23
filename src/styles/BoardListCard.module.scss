@@ -12,4 +12,23 @@
   &:last-of-type {
     margin-bottom: 0.5rem;
   }
+
+  .cardInner {
+    display: flex;
+    justify-content: space-between;
+
+    .taskButton {
+      padding: 0;
+      margin: 0;
+      background-color: transparent;
+      opacity: 0;
+      transition: all 0.2s ease-in;
+
+      &:hover {
+        border: none;
+        outline: none;
+        opacity: 1;
+      }
+    }
+  }
 }
