@@ -28,7 +28,6 @@ export const useSave = <T extends object>(): {
       setError(true);
       return;
     }
-
     const response = await supabaseClient
       .from(tableName)
       .insert(payload)

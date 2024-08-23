@@ -47,7 +47,9 @@ describe("useSaveBoard", () => {
       .post("/rest/v1/boards")
       .reply(200, { data: "whatever" })
       .post("/storage/v1/object/board_cover/board_cover/foo.txt")
-      .reply(200, { data: "whatever" });
+      .reply(200, { data: "whatever" })
+      .post("/rest/v1/boards?select=*")
+      .reply(200, { data: "test" });
 
     act(() => {
       saveBoard(mockEvent);
@@ -86,7 +88,9 @@ describe("useSaveBoard", () => {
       .post("/storage/v1/object/board_cover/board_cover/foo.txt")
       .reply(200, { data: "whatever" })
       .post("/rest/v1/boards")
-      .reply(200, { data: "whatever" });
+      .reply(200, { data: "whatever" })
+      .post("/rest/v1/boards?select=*")
+      .reply(200, { data: "test" });
 
     await waitFor(async () => await result.current.saveBoard(mockEvent));
 
@@ -104,7 +108,9 @@ describe("useSaveBoard", () => {
       .post("/storage/v1/object/board_cover/board_cover/foo.txt")
       .replyWithError("ERROR")
       .post("/rest/v1/boards")
-      .reply(200, { data: "whatever" });
+      .reply(200, { data: "whatever" })
+      .post("/rest/v1/boards?select=*")
+      .reply(200, { data: "test" });
 
     await waitFor(async () => await result.current.saveBoard(mockEvent));
 
