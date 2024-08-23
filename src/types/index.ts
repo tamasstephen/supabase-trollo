@@ -1,7 +1,7 @@
 export type { BoardsFormElement, BoardColumnFormElement } from "./FormTypes";
 export type {
   Board,
-  BoardColumnType as BoardType,
+  BoardColumnType,
   UpdateColumnProps,
   BoardColumnPayload,
   BoardPayload,

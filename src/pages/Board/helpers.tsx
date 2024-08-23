@@ -10,6 +10,26 @@ export const sanitizeDraggableId = (
   prefix?: BoardPrefixes
 ) => parseInt(containerId.replace(prefix ? prefix : BoardPrefixes.COLUMN, ""));
 
+export const findActiveBoardListCard = (
+  id: string,
+  boardColumns: DraggableBoardContainer[]
+) => {
+  const card = boardColumns
+    .find((board) => board.items.find((item) => item.id === id))
+    ?.items.find((item) => id === item.id);
+
+  return card;
+};
+
+export const findActiveContainers = (
+  activeId: string,
+  boardColumns: DraggableBoardContainer[]
+) => {
+  const container = boardColumns.find((column) => column.id === activeId);
+
+  return container;
+};
+
 export const updateContainerTasks = (
   column: DraggableBoardContainer,
   updateItem: (

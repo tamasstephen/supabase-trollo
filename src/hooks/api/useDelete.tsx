@@ -1,12 +1,13 @@
 import { useState } from "react";
 import { useAuthContext } from "../useAuthContext";
+import { TableNames } from "@/constants";
 
 export const useDelete = () => {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(false);
   const { supabaseClient } = useAuthContext();
 
-  const deleteItem = async (itemId: number, tableName: string) => {
+  const deleteItem = async (itemId: number, tableName: TableNames) => {
     if (!supabaseClient) {
       setError(true);
       return;

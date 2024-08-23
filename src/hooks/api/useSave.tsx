@@ -9,11 +9,11 @@ interface BoardColumnPayload {
   board_id: number;
 }
 
-type UseSavePayload = BoardColumnPayload | BoardPayload | TaskPayload;
+type SavePayload = BoardColumnPayload | BoardPayload | TaskPayload;
 
 export const useSave = (): {
   saveToDb: <T extends DbObject>(
-    payload: UseSavePayload,
+    payload: SavePayload,
     tabeName: string
   ) => Promise<T | undefined>;
   error: boolean;
@@ -24,7 +24,7 @@ export const useSave = (): {
   const { supabaseClient } = useAuthContext();
 
   const saveToDb = async <T extends DbObject>(
-    payload: UseSavePayload,
+    payload: SavePayload,
     tableName: string
   ) => {
     if (!supabaseClient) {

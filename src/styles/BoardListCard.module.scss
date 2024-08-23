@@ -5,6 +5,10 @@
   margin-top: 0.5rem;
   font-size: 0.875rem;
 
+  &.dragged {
+    opacity: 0.2;
+  }
+
   &:last-of-type {
     margin-bottom: 0.5rem;
   }

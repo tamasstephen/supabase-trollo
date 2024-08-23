@@ -9,13 +9,19 @@ type ItemsType = {
 };
 
 export const BoardListCard = ({ id, title }: ItemsType) => {
-  const { attributes, listeners, setNodeRef, transform, transition } =
-    useSortable({
-      id: id,
-      data: {
-        type: "item",
-      },
-    });
+  const {
+    attributes,
+    listeners,
+    setNodeRef,
+    transform,
+    transition,
+    isDragging,
+  } = useSortable({
+    id: id,
+    data: {
+      type: "item",
+    },
+  });
   return (
     <div
       ref={setNodeRef}
@@ -25,7 +31,7 @@ export const BoardListCard = ({ id, title }: ItemsType) => {
         transition,
         transform: CSS.Translate.toString(transform),
       }}
-      className={styles.card}
+      className={`${styles.card} ${isDragging ? styles.dragged : ""}`}
     >
       <div className="flex items-center justify-between">{title}</div>
     </div>

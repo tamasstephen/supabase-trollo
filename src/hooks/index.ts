@@ -5,4 +5,6 @@ export {
   useUpdate,
   useFetchBoards,
   useFetchBoardColumns,
+  useDeleteBoardColumn,
+  useSave,
 } from "./api";

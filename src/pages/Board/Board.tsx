@@ -9,7 +9,6 @@ import {
   UniqueIdentifier,
   DragOverlay,
 } from "@dnd-kit/core";
-import { Error, Loading } from "@/components";
 import styles from "@/styles/Board.module.scss";
 import {
   SortableContext,
@@ -22,16 +21,29 @@ import {
   Portal,
   BoardContainer,
   AddBoardColumn,
+  Error,
+  Loading,
 } from "@/components";
-import { BoardColumnFormElement, DraggableBoardContainer } from "@/types";
+import {
+  BoardColumnFormElement,
+  DraggableBoardContainer,
+  BoardColumnType,
+  Task,
+} from "@/types";
 import { useParams } from "react-router-dom";
-import { useAuthContext, useFetchBoardColumns } from "@/hooks";
-import { useDeleteBoardColumn } from "@/hooks/api/useDeleteBoardColumn";
-import { BoardPrefixes, TableNames } from "@/constants/constants";
-import { useSave } from "@/hooks/api/useSave";
-import { BoardColumnType, Task } from "@/types/Board";
-import { sanitizeDraggableId } from "./helpers";
-import { useUpdate } from "@/hooks/api/useUpdate";
+import {
+  useAuthContext,
+  useFetchBoardColumns,
+  useUpdate,
+  useSave,
+  useDeleteBoardColumn,
+} from "@/hooks";
+import { BoardPrefixes, TableNames } from "@/constants";
+import {
+  findActiveBoardListCard,
+  sanitizeDraggableId,
+  findActiveContainers,
+} from "./helpers";
 
 enum BoardModalContent {
   EMPTY,
@@ -79,22 +91,11 @@ export const Board = () => {
   const hasToShowError = error || saveError;
   updateError || deleteColumnError;
 
-  const findActiveBoardListCard = (id: string) => {
-    const card = boardColumns
-      .find((board) => board.items.find((item) => item.id === id))
-      ?.items.find((item) => id === item.id);
-
-    return card;
-  };
-
-  const findActiveContainers = (activeId: string) => {
-    const container = boardColumns.find((column) => column.id === activeId);
-
-    return container;
-  };
-
-  const activeContainer = findActiveContainers(activeId as string);
-  const activeCard = findActiveBoardListCard(activeId as string);
+  const activeContainer = findActiveContainers(
+    activeId as string,
+    boardColumns
+  );
+  const activeCard = findActiveBoardListCard(activeId as string, boardColumns);
 
   if (!supabaseClient) {
     return <>no client</>;
