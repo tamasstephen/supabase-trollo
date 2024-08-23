@@ -8,7 +8,7 @@ export const useSaveBoard = () => {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(false);
   const { supabaseClient } = useAuthContext();
-  const { error: saveColumnError, saveToDb } = useSave<Board>();
+  const { error: saveColumnError, saveToDb } = useSave();
 
   useEffect(() => {
     if (saveColumnError) {
@@ -39,7 +39,7 @@ export const useSaveBoard = () => {
   };
 
   const saveBoardData = async (payload: BoardPayload) => {
-    const response = saveToDb(payload, "boards");
+    const response = saveToDb<Board>(payload, "boards");
     return response;
   };
 
@@ -50,8 +50,8 @@ export const useSaveBoard = () => {
     }
     event.preventDefault();
     setLoading(true);
-    const payload: BoardPayload = { name: "" };
-    payload.name = event.currentTarget.elements.boardName.value;
+    const payload: BoardPayload = { title: "" };
+    payload.title = event.currentTarget.elements.boardName.value;
     if (event.currentTarget.elements.boardCover.files?.length) {
       const boardCover = event.currentTarget.elements.boardCover.files[0];
       const isError = await saveBoardBackGround(

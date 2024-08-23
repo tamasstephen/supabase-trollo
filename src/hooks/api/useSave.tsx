@@ -1,7 +1,7 @@
 import { BoardPayload } from "@/types";
 import { useState } from "react";
 import { useAuthContext } from "../useAuthContext";
-import { TaskPayload } from "@/types/Board";
+import { DbObject, TaskPayload } from "@/types/Board";
 
 interface BoardColumnPayload {
   title: string;
@@ -11,8 +11,8 @@ interface BoardColumnPayload {
 
 type UseSavePayload = BoardColumnPayload | BoardPayload | TaskPayload;
 
-export const useSave = <T extends object>(): {
-  saveToDb: (
+export const useSave = (): {
+  saveToDb: <T extends DbObject>(
     payload: UseSavePayload,
     tabeName: string
   ) => Promise<T | undefined>;
@@ -23,7 +23,10 @@ export const useSave = <T extends object>(): {
   const [error, setError] = useState(false);
   const { supabaseClient } = useAuthContext();
 
-  const saveToDb = async (payload: UseSavePayload, tableName: string) => {
+  const saveToDb = async <T extends DbObject>(
+    payload: UseSavePayload,
+    tableName: string
+  ) => {
     if (!supabaseClient) {
       setError(true);
       return;

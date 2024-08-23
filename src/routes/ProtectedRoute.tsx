@@ -1,12 +1,13 @@
 import { Navigate } from "react-router-dom";
 import { useAuthContext } from "@/hooks";
 import { PropsWithChildren } from "react";
+import { Loading } from "@/components";
 
 export const ProtectedRoute = ({ children }: PropsWithChildren) => {
   const { isSignedIn, loading: contextLoading } = useAuthContext();
 
   if (contextLoading) {
-    return <p>Loading</p>;
+    return <Loading />;
   }
 
   if (!isSignedIn) {

@@ -1,13 +1,13 @@
 import { BoardPrefixes } from "@/constants/constants";
-import { BoardType, UpdateColumnProps } from "@/types";
+import { DraggableBoardContainer, UpdateColumnProps } from "@/types";
 import { DragEndEvent, DragStartEvent, UniqueIdentifier } from "@dnd-kit/core";
 import { arrayMove } from "@dnd-kit/sortable";
 import { Dispatch } from "react";
 
 export const handleDragEnd = (
   event: DragEndEvent,
-  boardColumns: BoardType[],
-  setBoardColumn: Dispatch<React.SetStateAction<BoardType[]>>,
+  boardColumns: DraggableBoardContainer[],
+  setBoardColumn: Dispatch<React.SetStateAction<DraggableBoardContainer[]>>,
   setActiveId: React.Dispatch<React.SetStateAction<UniqueIdentifier | null>>,
   updateBoardColumn: (payload: UpdateColumnProps) => void
 ) => {

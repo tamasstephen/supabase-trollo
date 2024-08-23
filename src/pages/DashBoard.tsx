@@ -58,7 +58,7 @@ export const Dashboard = () => {
               return (
                 <li key={board.id}>
                   <BoardCard
-                    title={board.name}
+                    title={board.title}
                     imageUrl={board.imageUrl}
                     callback={(e) => openBoard(e, board.id)}
                   />

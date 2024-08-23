@@ -8,8 +8,8 @@ import userEvent from "@testing-library/user-event";
 jest.mock("../hooks/api/useFetchBoards.tsx");
 
 const boards = [
-  { id: 1, name: "first board" },
-  { id: 2, name: "second board" },
+  { id: 1, title: "first board" },
+  { id: 2, title: "second board" },
 ];
 
 const mockedUseNavigate = jest.fn();
@@ -69,8 +69,8 @@ describe("Dashboard", () => {
     setupMockUseFetchBoards(false, false, boards);
     render(<Dashboard />);
 
-    const firstCard = screen.getByText(boards[0].name);
-    const secondCard = screen.getByText(boards[1].name);
+    const firstCard = screen.getByText(boards[0].title);
+    const secondCard = screen.getByText(boards[1].title);
 
     expect(firstCard).toBeInTheDocument();
     expect(secondCard).toBeInTheDocument();
@@ -93,7 +93,7 @@ describe("Dashboard", () => {
     setupMockUseFetchBoards(false, false, boards);
     render(<Dashboard />);
 
-    const button = screen.getByText(boards[0].name);
+    const button = screen.getByText(boards[0].title);
     await user.click(button);
 
     expect(mockedUseNavigate).toHaveBeenCalled();

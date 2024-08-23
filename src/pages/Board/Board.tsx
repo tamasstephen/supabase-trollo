@@ -23,17 +23,17 @@ import {
   BoardContainer,
   AddBoardColumn,
 } from "@/components";
-import { BoardColumnFormElement, BoardType } from "@/types";
+import { BoardColumnFormElement, DraggableBoardContainer } from "@/types";
 import { useParams } from "react-router-dom";
 import {
   useAuthContext,
   useFetchBoardColumns,
-  useSaveBoardColumn,
   useUpdateBoardColumn,
-  useSaveTask,
 } from "@/hooks";
 import { useDeleteBoardColumn } from "@/hooks/api/useDeleteBoardColumn";
-import { BoardPrefixes } from "@/constants/constants";
+import { BoardPrefixes, TableNames } from "@/constants/constants";
+import { useSave } from "@/hooks/api/useSave";
+import { BoardColumnType, Task } from "@/types/Board";
 
 enum BoardModalContent {
   EMPTY,
@@ -51,15 +51,20 @@ export const Board = () => {
     null
   );
   const { id } = useParams();
-  const [boardColumns, setBoardColumn] = useState<BoardType[]>([]);
+  const [boardColumns, setBoardColumn] = useState<DraggableBoardContainer[]>(
+    []
+  );
   const { error, loading } = useFetchBoardColumns(
     parseInt(id as string),
     setBoardColumn
   );
-  const { error: updateError, updateBoardColumn } = useUpdateBoardColumn();
-  const { error: saveError, saveBoardColumn } = useSaveBoardColumn();
-  const { error: deleteError, deleteBoardColumn } = useDeleteBoardColumn();
-  const { error: taskError, saveTask } = useSaveTask();
+  const { error: updateColumnError, updateBoardColumn } =
+    useUpdateBoardColumn();
+
+  const { error: deleteColumnError, deleteBoardColumn } =
+    useDeleteBoardColumn();
+
+  const { error: saveError, saveToDb } = useSave();
   const { supabaseClient } = useAuthContext();
   const sensors = useSensors(
     useSensor(PointerSensor, {
@@ -74,8 +79,8 @@ export const Board = () => {
     })
   );
 
-  const hasToShowError =
-    error || saveError || updateError || deleteError || taskError;
+  const hasToShowError = error || saveError;
+  updateColumnError || deleteColumnError;
 
   const findActiveBoardListCard = (id: string) => {
     const card = boardColumns
@@ -112,11 +117,14 @@ export const Board = () => {
     const boardTitle = e.currentTarget.elements.boardColumnTitle.value;
     const columnToEdit = boardColumns.find((col) => col.id === columnId);
     if (!columnToEdit) return;
-    const task = await saveTask({
-      index: columnToEdit.items.length,
-      title: boardTitle,
-      board_id: sanitizeBoardId(columnId as string),
-    });
+    const task = await saveToDb<Task>(
+      {
+        index: columnToEdit.items.length,
+        title: boardTitle,
+        board_id: sanitizeBoardId(columnId as string),
+      },
+      TableNames.TASK
+    );
     if (!task) return;
     const newId = `${BoardPrefixes.ITEM}${task.id}`;
     columnToEdit.items.push({ ...task, id: newId });
@@ -138,11 +146,14 @@ export const Board = () => {
     //TODO: implement form check
     if (!boardTitle) return;
 
-    const newColumn = await saveBoardColumn({
-      board_id: parseInt(id as string),
-      title: boardTitle,
-      index: boardColumns.length,
-    });
+    const newColumn = await saveToDb<BoardColumnType>(
+      {
+        board_id: parseInt(id as string),
+        title: boardTitle,
+        index: boardColumns.length,
+      },
+      TableNames.COLUMN
+    );
 
     if (!newColumn) {
       return;

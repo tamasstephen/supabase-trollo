@@ -12,7 +12,7 @@ export const useDeleteBoardColumn = () => {
     if (!supabaseClient) {
       setError(true);
     }
-
+    // TODO: delete all related tasks
     setLoading(true);
 
     const response = await supabaseClient

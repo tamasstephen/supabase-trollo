@@ -6,12 +6,12 @@ import {
   useState,
 } from "react";
 import { useAuthContext } from "../useAuthContext";
-import { BoardType } from "@/types";
+import { DraggableBoardContainer } from "@/types";
 import { BoardPrefixes } from "@/constants/constants";
 
 export const useFetchBoardColumns = (
   boardId: number,
-  setBoardColumns: Dispatch<SetStateAction<BoardType[]>>
+  setBoardColumns: Dispatch<SetStateAction<DraggableBoardContainer[]>>
 ) => {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(false);
@@ -28,7 +28,7 @@ export const useFetchBoardColumns = (
       setError(true);
       return;
     }
-    const columns = data as BoardType[];
+    const columns = data as DraggableBoardContainer[];
     const idPrefixedColumns = columns
       .map((column) => {
         column.id = `${BoardPrefixes.COLUMN}${column.id}`;
