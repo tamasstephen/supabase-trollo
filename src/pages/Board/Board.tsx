@@ -25,15 +25,13 @@ import {
 } from "@/components";
 import { BoardColumnFormElement, DraggableBoardContainer } from "@/types";
 import { useParams } from "react-router-dom";
-import {
-  useAuthContext,
-  useFetchBoardColumns,
-  useUpdateBoardColumn,
-} from "@/hooks";
+import { useAuthContext, useFetchBoardColumns } from "@/hooks";
 import { useDeleteBoardColumn } from "@/hooks/api/useDeleteBoardColumn";
 import { BoardPrefixes, TableNames } from "@/constants/constants";
 import { useSave } from "@/hooks/api/useSave";
 import { BoardColumnType, Task } from "@/types/Board";
+import { sanitizeDraggableId } from "./helpers";
+import { useUpdate } from "@/hooks/api/useUpdate";
 
 enum BoardModalContent {
   EMPTY,
@@ -58,8 +56,7 @@ export const Board = () => {
     parseInt(id as string),
     setBoardColumn
   );
-  const { error: updateColumnError, updateBoardColumn } =
-    useUpdateBoardColumn();
+  const { error: updateError, updateItem } = useUpdate();
 
   const { error: deleteColumnError, deleteBoardColumn } =
     useDeleteBoardColumn();
@@ -80,7 +77,7 @@ export const Board = () => {
   );
 
   const hasToShowError = error || saveError;
-  updateColumnError || deleteColumnError;
+  updateError || deleteColumnError;
 
   const findActiveBoardListCard = (id: string) => {
     const card = boardColumns
@@ -102,9 +99,6 @@ export const Board = () => {
   if (!supabaseClient) {
     return <>no client</>;
   }
-
-  const sanitizeDraggableId = (containerId: string, prefix?: BoardPrefixes) =>
-    parseInt(containerId.replace(prefix ? prefix : BoardPrefixes.COLUMN, ""));
 
   const addNewTask = async (
     e: React.FormEvent<BoardColumnFormElement>,
@@ -185,10 +179,13 @@ export const Board = () => {
           return container;
         });
       newColumns.forEach((column) =>
-        updateBoardColumn({
-          id: sanitizeDraggableId(column.id),
-          index: column.index,
-        })
+        updateItem(
+          {
+            id: sanitizeDraggableId(column.id),
+            index: column.index,
+          },
+          TableNames.COLUMN
+        )
       );
       return newColumns;
     });
@@ -241,7 +238,7 @@ export const Board = () => {
               boardColumns,
               setBoardColumn,
               setActiveId,
-              updateBoardColumn
+              updateItem
             )
           }
           onDragStart={(e) => handleDragStart(e, setActiveId)}

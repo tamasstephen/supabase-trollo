@@ -19,6 +19,11 @@ export interface UpdateColumnProps {
   id: number;
 }
 
+export interface UpdateTaskProps extends UpdateColumnProps {
+  description?: string;
+  board_id: number;
+}
+
 export interface BoardColumnPayload {
   title: string;
   index: number;
