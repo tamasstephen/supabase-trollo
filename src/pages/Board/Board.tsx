@@ -43,7 +43,9 @@ import {
   findActiveBoardListCard,
   sanitizeDraggableId,
   findActiveContainers,
+  updateContainerTasks,
 } from "./helpers";
+import { useDelete } from "@/hooks/api/useDelete";
 
 enum BoardModalContent {
   EMPTY,
@@ -72,6 +74,7 @@ export const Board = () => {
 
   const { error: deleteColumnError, deleteBoardColumn } =
     useDeleteBoardColumn();
+  const { error: deleteError, deleteItem } = useDelete();
 
   const { error: saveError, saveToDb } = useSave();
   const { supabaseClient } = useAuthContext();
@@ -89,7 +92,7 @@ export const Board = () => {
   );
 
   const hasToShowError = error || saveError;
-  updateError || deleteColumnError;
+  updateError || deleteColumnError || deleteError;
 
   const activeContainer = findActiveContainers(
     activeId as string,
@@ -163,6 +166,29 @@ export const Board = () => {
         index: boardColumns.length + 1,
       },
     ]);
+  };
+
+  const deleteTask = (taskId: string) => {
+    const columnToUpdate = boardColumns.find((column) =>
+      column.items.find((item) => item.id === taskId)
+    );
+    if (!columnToUpdate) {
+      return;
+    }
+    deleteItem(
+      sanitizeDraggableId(taskId, BoardPrefixes.ITEM),
+      TableNames.TASK
+    );
+    setBoardColumn((prevColumns) => {
+      const newColumns = prevColumns.map((column) => {
+        if (column.id === columnToUpdate.id) {
+          column.items = column.items.filter((item) => item.id !== taskId);
+          updateContainerTasks(column, updateItem);
+        }
+        return column;
+      });
+      return newColumns;
+    });
   };
 
   const deleteBoardContainer = async (containerId: string) => {
@@ -264,7 +290,12 @@ export const Board = () => {
                 >
                   <div className={styles.listcard}>
                     {container.items.map((i) => (
-                      <BoardListCard title={i.title} id={i.id} key={i.id} />
+                      <BoardListCard
+                        title={i.title}
+                        id={i.id}
+                        key={i.id}
+                        onDelete={deleteTask}
+                      />
                     ))}
                   </div>
                 </SortableContext>
@@ -274,7 +305,11 @@ export const Board = () => {
           <DragOverlay adjustScale={false}>
             {/* Drag Overlay For item Item */}
             {activeId && activeId.toString().includes("card") && (
-              <BoardListCard id={activeId} title={activeCard?.title || ""} />
+              <BoardListCard
+                id={activeId}
+                title={activeCard?.title || ""}
+                onDelete={deleteTask}
+              />
             )}
             {/* Drag Overlay For Container */}
             {activeId && activeId.toString().includes("container") && (
@@ -289,7 +324,12 @@ export const Board = () => {
               >
                 <div className={styles.listcard}>
                   {activeContainer?.items.map((i) => (
-                    <BoardListCard key={i.id} title={i.title} id={i.id} />
+                    <BoardListCard
+                      key={i.id}
+                      title={i.title}
+                      id={i.id}
+                      onDelete={deleteTask}
+                    />
                   ))}
                 </div>
               </BoardContainer>

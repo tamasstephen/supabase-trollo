@@ -2,13 +2,15 @@ import { UniqueIdentifier } from "@dnd-kit/core";
 import { useSortable } from "@dnd-kit/sortable";
 import { CSS } from "@dnd-kit/utilities";
 import styles from "@/styles/BoardListCard.module.scss";
+import Delete from "@/assets/delete.svg";
 
 type ItemsType = {
   id: UniqueIdentifier;
   title: string;
+  onDelete: (id: string) => void;
 };
 
-export const BoardListCard = ({ id, title }: ItemsType) => {
+export const BoardListCard = ({ id, title, onDelete }: ItemsType) => {
   const {
     attributes,
     listeners,
@@ -33,7 +35,15 @@ export const BoardListCard = ({ id, title }: ItemsType) => {
       }}
       className={`${styles.card} ${isDragging ? styles.dragged : ""}`}
     >
-      <div className="flex items-center justify-between">{title}</div>
+      <div className={styles.cardInner}>
+        {title}
+        <button
+          className={styles.taskButton}
+          onClick={() => onDelete(id as string)}
+        >
+          <Delete />
+        </button>
+      </div>
     </div>
   );
 };
