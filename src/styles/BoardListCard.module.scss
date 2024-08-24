@@ -1,21 +1,24 @@
 .card {
   background: white;
-  padding: 0.875rem;
+  padding: 0.575rem 1rem;
   border-radius: 10px;
   margin-top: 0.5rem;
-  font-size: 0.875rem;
+  font-size: 1rem;
+  box-shadow: 0 2px 4px 2px rgba(0, 0, 0, 0.05);
+  border: 1px solid rgba(0, 0, 0, 0.2);
 
   &.dragged {
     opacity: 0.2;
   }
 
   &:last-of-type {
-    margin-bottom: 0.5rem;
+    margin-bottom: 1rem;
   }
 
   .cardInner {
     display: flex;
     justify-content: space-between;
+    align-items: center;
 
     .taskButton {
       padding: 0;

@@ -3,29 +3,39 @@
 .container {
   display: flex;
   align-items: flex-start;
-  padding: 2rem;
+  padding: 0 2rem;
   overflow-x: auto;
   min-height: 70vh;
 }
 
-.addList {
-  background-color: $border-gray;
-  padding: 0.875rem;
-  font-size: 0.875rem;
-  font-weight: 700;
-  margin-right: 1rem;
-  width: 150px;
-  height: 3.125rem;
-  flex-shrink: 0;
-  transition: background-color 0.2s ease-in-out;
+.header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin: 2rem 2rem;
+  padding-bottom: 1rem;
+  border-bottom: 1px solid $border-gray;
 
-  &:hover {
-    background-color: $cta-hover-gray;
-    border: none;
+  h2 {
+    font-size: 1.25rem;
+    font-weight: 500;
+    text-transform: capitalize;
+    margin: 0;
   }
 }
 
+.addList {
+  padding: 0.5rem;
+  font-size: 0.875rem;
+  font-weight: 500;
+  width: 150px;
+  flex-shrink: 0;
+  color: black;
+  border: 1px dashed rgba(0, 0, 0, 0.2);
+  background-color: transparent;
+}
+
 .listcard {
-  min-height: 100px;
+  min-height: minmax(100px, auto);
   min-width: 100%;
 }

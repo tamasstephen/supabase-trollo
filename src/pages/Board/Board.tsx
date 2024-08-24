@@ -32,7 +32,6 @@ import {
 } from "@/types";
 import { useParams } from "react-router-dom";
 import {
-  useAuthContext,
   useFetchBoardColumns,
   useUpdate,
   useSave,
@@ -46,6 +45,7 @@ import {
   updateContainerTasks,
 } from "./helpers";
 import { useDelete } from "@/hooks/api/useDelete";
+import { useFetchBoard } from "@/hooks/api/useFetchBoard";
 
 enum BoardModalContent {
   EMPTY,
@@ -66,6 +66,11 @@ export const Board = () => {
   const [boardColumns, setBoardColumn] = useState<DraggableBoardContainer[]>(
     []
   );
+  const {
+    error: boardError,
+    loading: boardLoading,
+    data: boardData,
+  } = useFetchBoard(id);
   const { error, loading } = useFetchBoardColumns(
     parseInt(id as string),
     setBoardColumn
@@ -77,7 +82,6 @@ export const Board = () => {
   const { error: deleteError, deleteItem } = useDelete();
 
   const { error: saveError, saveToDb } = useSave();
-  const { supabaseClient } = useAuthContext();
   const sensors = useSensors(
     useSensor(PointerSensor, {
       activationConstraint: {
@@ -92,17 +96,13 @@ export const Board = () => {
   );
 
   const hasToShowError = error || saveError;
-  updateError || deleteColumnError || deleteError;
+  updateError || deleteColumnError || deleteError || boardError;
 
   const activeContainer = findActiveContainers(
     activeId as string,
     boardColumns
   );
   const activeCard = findActiveBoardListCard(activeId as string, boardColumns);
-
-  if (!supabaseClient) {
-    return <>no client</>;
-  }
 
   const addNewTask = async (
     e: React.FormEvent<BoardColumnFormElement>,
@@ -222,13 +222,14 @@ export const Board = () => {
     return <Error />;
   }
 
-  if (loading) {
+  if (loading || boardLoading) {
     return <Loading />;
   }
 
   return (
     <div>
-      <div className={styles.container}>
+      <div className={styles.header}>
+        <h2>{boardData?.title}</h2>
         <button
           className={styles.addList}
           onClick={() => {
@@ -238,6 +239,8 @@ export const Board = () => {
         >
           Add list
         </button>
+      </div>
+      <div className={styles.container}>
         {isModalOpen && (
           <Portal
             closeModal={() => {

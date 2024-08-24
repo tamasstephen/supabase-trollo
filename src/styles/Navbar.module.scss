@@ -6,7 +6,7 @@
 }
 
 .navInnerWrapper {
-  padding: 0.5rem 1rem;
+  padding: 0.5rem 2rem;
   display: flex;
   justify-content: space-between;
 }
@@ -16,4 +16,21 @@
   display: flex;
   justify-content: center;
   align-items: center;
+  cursor: pointer;
+}
+
+.logout {
+  font-weight: 500;
+  padding: 0.375rem 1rem;
+  font-size: 0.875rem;
+  color: black;
+  background-color: white;
+  border: $light-border;
+  transition: all 0.2s ease-in-out;
+
+  &:hover {
+    outline: none;
+    background-color: $cta-gray;
+    border: $light-border;
+  }
 }

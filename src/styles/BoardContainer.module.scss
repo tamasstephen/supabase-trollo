@@ -3,8 +3,7 @@
 .wrapper {
   width: 300px;
   flex-shrink: 0;
-  background-color: #fbfbfb;
-  padding: 0.5rem;
+
   border-radius: 10px;
   cursor: pointer;
   + .wrapper {
@@ -17,7 +16,7 @@
 }
 
 .header {
-  background-color: #f0f0f0;
+  background-color: #f4f4f4;
   border-radius: 10px;
   display: flex;
   justify-content: space-between;
@@ -29,9 +28,8 @@
   h2 {
     margin: 0;
     font-size: 1rem;
-    font-weight: 600;
+    font-weight: 500;
     text-transform: capitalize;
-    letter-spacing: -1px;
   }
 
   .close {
@@ -52,11 +50,9 @@
 
 .add {
   width: 100%;
-  background-color: $border-gray;
+  background-color: white;
   transition: all 0.2s ease-in-out;
-
-  &:hover {
-    background-color: $cta-hover-gray;
-    border: none;
-  }
+  border: 1px dashed rgba(0, 0, 0, 0.2);
+  color: black;
+  padding: 1rem;
 }
