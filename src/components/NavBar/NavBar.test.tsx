@@ -61,7 +61,7 @@ describe("Navbar", () => {
 
     act(() => setSignedIn(true));
 
-    screen.getByText("logout");
+    screen.getByText("Sign Out");
   });
 
   test("Navbar should call should render logout if user is signed in", async () => {
@@ -75,13 +75,13 @@ describe("Navbar", () => {
 
     act(() => setSignedIn(true));
 
-    const button = screen.getByText("logout");
+    const button = screen.getByText("Sign Out");
     await user.click(button);
 
     expect(mockSetToSignedOut).toHaveBeenCalled();
   });
 
-  test("Navbar renders with logout button if initial state is signed in", async () => {
+  test("Navbar renders with Sign Out button if initial state is signed in", async () => {
     setUpMockedAuthContext(true, { session: "text" });
     render(
       <MemoryRouter>
@@ -89,7 +89,7 @@ describe("Navbar", () => {
       </MemoryRouter>
     );
 
-    screen.getByText("logout");
+    screen.getByText("Sign Out");
   });
 
   test("Navbar navigates when logo is clicked", async () => {

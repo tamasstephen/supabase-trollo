@@ -58,7 +58,11 @@ export const NavBar = () => {
           >
             Trollo
           </div>
-          {isSignedIn && <button onClick={logout}>logout</button>}
+          {isSignedIn && (
+            <button className={styles.logout} onClick={logout}>
+              Sign Out
+            </button>
+          )}
         </div>
       </div>
       <Outlet />

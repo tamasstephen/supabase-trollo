@@ -3,8 +3,7 @@
 .wrapper {
   width: 300px;
   flex-shrink: 0;
-  background-color: #fbfbfb;
-  padding: 0.5rem;
+
   border-radius: 10px;
   cursor: pointer;
   + .wrapper {
@@ -14,10 +13,47 @@
   &.dragged {
     opacity: 0.2;
   }
+
+  .newCardFormInactive {
+    opacity: 0;
+    height: 0;
+    width: 0;
+    pointer-events: none;
+    transition: all 0.5s ease-in-out;
+  }
+
+  .newCardFormActive {
+    opacity: 1;
+    height: auto;
+    width: auto;
+    pointer-events: all;
+  }
+
+  .hiddenButton {
+    visibility: hidden;
+    display: none;
+  }
+
+  .taskInput {
+    background-color: white;
+    border-radius: 10px;
+    width: 300px;
+    box-sizing: border-box;
+    color: black;
+    padding: 0.575rem 1rem;
+    margin-bottom: 1rem;
+    border: 1px dashed $button-border-gray;
+
+    &:focus,
+    &:focus-visible {
+      border: 1px dashed blue;
+      outline: none;
+    }
+  }
 }
 
 .header {
-  background-color: #f0f0f0;
+  background-color: #f4f4f4;
   border-radius: 10px;
   display: flex;
   justify-content: space-between;
@@ -29,9 +65,8 @@
   h2 {
     margin: 0;
     font-size: 1rem;
-    font-weight: 600;
+    font-weight: 500;
     text-transform: capitalize;
-    letter-spacing: -1px;
   }
 
   .close {
@@ -52,11 +87,9 @@
 
 .add {
   width: 100%;
-  background-color: $border-gray;
+  background-color: white;
   transition: all 0.2s ease-in-out;
-
-  &:hover {
-    background-color: $cta-hover-gray;
-    border: none;
-  }
+  border: 1px dashed rgba(0, 0, 0, 0.2);
+  color: black;
+  padding: 1rem;
 }
