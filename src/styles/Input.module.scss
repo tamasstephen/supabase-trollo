@@ -1,0 +1,36 @@
+@import "./base.scss";
+
+fieldset {
+  display: flex;
+  flex-direction: column;
+  border: none;
+  padding: 0;
+
+  label {
+    padding-bottom: 0.125rem;
+    font-size: 0.825rem;
+    font-weight: 500;
+
+    .mandatory {
+      color: red;
+    }
+  }
+
+  input {
+    background-color: white;
+    border: 1px solid $button-border-gray;
+    padding: 0.25rem;
+    border-radius: 5px;
+
+    &:focus {
+      outline: none;
+    }
+  }
+
+  .error {
+    color: red;
+    font-size: 0.875rem;
+    margin: 0;
+    padding-top: 0.5rem;
+  }
+}

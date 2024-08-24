@@ -28,6 +28,14 @@ fieldset {
       color: red;
     }
   }
+
+  input::file-selector-button {
+    background-color: white;
+    border: 1px solid $button-border-gray;
+    border-radius: 5px;
+    color: black;
+    padding: 0.5rem;
+  }
 }
 
 fieldset:nth-child(2) {
@@ -42,7 +50,7 @@ fieldset:nth-child(2) {
   top: 1rem;
   right: 1rem;
   padding: 0;
-  background-color: none;
+  background-color: white;
   border: none;
 }
 

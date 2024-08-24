@@ -9,5 +9,6 @@ export type {
   Task,
   DraggableBoardContainer,
   UpdateTaskProps,
+  SaveBoardInputs,
 } from "./Board";
 export type { AuthContextProps } from "./AuthContext";

@@ -32,6 +32,11 @@ export interface BoardColumnPayload {
 
 export type BoardPayload = Omit<Board, "image" | "id">;
 
+export type SaveBoardInputs = {
+  boardName: string;
+  boardCover: FileList;
+};
+
 export interface Task extends DbObject {
   board_id: number;
   description?: string;
