@@ -13,6 +13,43 @@
   &.dragged {
     opacity: 0.2;
   }
+
+  .newCardFormInactive {
+    opacity: 0;
+    height: 0;
+    width: 0;
+    pointer-events: none;
+    transition: all 0.5s ease-in-out;
+  }
+
+  .newCardFormActive {
+    opacity: 1;
+    height: auto;
+    width: auto;
+    pointer-events: all;
+  }
+
+  .hiddenButton {
+    visibility: hidden;
+    display: none;
+  }
+
+  .taskInput {
+    background-color: white;
+    border-radius: 10px;
+    width: 300px;
+    box-sizing: border-box;
+    color: black;
+    padding: 0.575rem 1rem;
+    margin-bottom: 1rem;
+    border: 1px dashed $button-border-gray;
+
+    &:focus,
+    &:focus-visible {
+      border: 1px dashed blue;
+      outline: none;
+    }
+  }
 }
 
 .header {

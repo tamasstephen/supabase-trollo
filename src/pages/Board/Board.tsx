@@ -16,7 +16,6 @@ import {
 } from "@dnd-kit/sortable";
 import { handleDragEnd, handleDragStart } from "./handlers";
 import {
-  AddBoardItem,
   BoardListCard,
   Portal,
   BoardContainer,
@@ -46,22 +45,11 @@ import {
 } from "./helpers";
 import { useDelete } from "@/hooks/api/useDelete";
 import { useFetchBoard } from "@/hooks/api/useFetchBoard";
-
-enum BoardModalContent {
-  EMPTY,
-  COLUMN,
-  ITEM,
-}
+import { TaskFormElement } from "@/types/FormTypes";
 
 export const Board = () => {
   const [activeId, setActiveId] = useState<UniqueIdentifier | null>(null);
   const [isModalOpen, setIsModalOpen] = useState(false);
-  const [boardModalContent, setBoardModalContent] = useState(
-    BoardModalContent.EMPTY
-  );
-  const [saveItemContainer, setSaveItemContainer] = useState<string | null>(
-    null
-  );
   const { id } = useParams();
   const [boardColumns, setBoardColumn] = useState<DraggableBoardContainer[]>(
     []
@@ -105,14 +93,14 @@ export const Board = () => {
   const activeCard = findActiveBoardListCard(activeId as string, boardColumns);
 
   const addNewTask = async (
-    e: React.FormEvent<BoardColumnFormElement>,
+    e: React.FormEvent<TaskFormElement>,
     columnId: UniqueIdentifier | null
   ) => {
     e.preventDefault();
     if (!columnId) {
       return;
     }
-    const boardTitle = e.currentTarget.elements.boardColumnTitle.value;
+    const boardTitle = e.currentTarget.elements.taskTitle.value;
     const columnToEdit = boardColumns.find((col) => col.id === columnId);
     if (!columnToEdit) return;
     const task = await saveToDb<Task>(
@@ -233,7 +221,6 @@ export const Board = () => {
         <button
           className={styles.addList}
           onClick={() => {
-            setBoardModalContent(BoardModalContent.COLUMN);
             setIsModalOpen(true);
           }}
         >
@@ -242,21 +229,8 @@ export const Board = () => {
       </div>
       <div className={styles.container}>
         {isModalOpen && (
-          <Portal
-            closeModal={() => {
-              setBoardModalContent(BoardModalContent.EMPTY);
-              setIsModalOpen(false);
-            }}
-          >
-            {boardModalContent === BoardModalContent.COLUMN && (
-              <AddBoardColumn callback={addBoardColumn} />
-            )}
-            {boardModalContent === BoardModalContent.ITEM && (
-              <AddBoardItem
-                callback={addNewTask}
-                containerId={saveItemContainer}
-              />
-            )}
+          <Portal closeModal={() => setIsModalOpen(false)}>
+            <AddBoardColumn callback={addBoardColumn} />
           </Portal>
         )}
         <DndContext
@@ -279,11 +253,7 @@ export const Board = () => {
                 id={container.id}
                 title={container.title}
                 key={container.id}
-                onAddItem={() => {
-                  setBoardModalContent(BoardModalContent.ITEM);
-                  setIsModalOpen(true);
-                  setSaveItemContainer(container.id);
-                }}
+                callback={addNewTask}
                 onDelete={() => deleteBoardContainer(container.id)}
                 description=""
               >
@@ -319,10 +289,7 @@ export const Board = () => {
               <BoardContainer
                 id={activeId}
                 title={activeContainer?.title || ""}
-                onAddItem={() => {
-                  setBoardModalContent(BoardModalContent.ITEM);
-                  setIsModalOpen(true);
-                }}
+                callback={addNewTask}
                 onDelete={() => {}}
               >
                 <div className={styles.listcard}>

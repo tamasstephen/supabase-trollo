@@ -13,3 +13,11 @@ interface AddBoardColumnFormElement extends HTMLFormControlsCollection {
 export interface BoardColumnFormElement extends HTMLFormElement {
   readonly elements: AddBoardColumnFormElement;
 }
+
+interface AddTaskFormElement extends HTMLFormControlsCollection {
+  taskTitle: HTMLTextAreaElement;
+}
+
+export interface TaskFormElement extends HTMLFormElement {
+  readonly elements: AddTaskFormElement;
+}
