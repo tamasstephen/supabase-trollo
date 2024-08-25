@@ -1,3 +1,4 @@
+import Plus from "@/assets/plus.svg";
 import { UniqueIdentifier } from "@dnd-kit/core";
 import { useSortable } from "@dnd-kit/sortable";
 import {
@@ -12,6 +13,8 @@ import { CSS } from "@dnd-kit/utilities";
 import styles from "@/styles/BoardContainer.module.scss";
 import DeleteIcon from "@/assets/delete.svg";
 import { TaskFormElement } from "@/types/FormTypes";
+import { Button } from "../Button";
+import { ButtonStyle } from "@/constants";
 
 interface ContainerProps extends PropsWithChildren {
   id: string | UniqueIdentifier;
@@ -49,10 +52,9 @@ export const BoardContainer = ({
   const submitButton = useRef<HTMLButtonElement>(null);
   const [showForm, setShowForm] = useState(false);
 
-  const onSubmit = async (event: FormEvent<TaskFormElement>) => {
+  const onSubmit = (event: FormEvent<TaskFormElement>) => {
     event.preventDefault();
-    await callback(event, id);
-    setShowForm(false);
+    callback(event, id);
   };
 
   const handleKeydown = (e: KeyboardEvent) => {
@@ -62,9 +64,12 @@ export const BoardContainer = ({
     }
     if (e.key === "Enter" && e.shiftKey === false) {
       e.preventDefault();
-      submitButton.current?.click();
+      if (textArea.current?.value) {
+        submitButton.current?.click();
+      }
       textArea.current?.blur();
       textArea.current.value = "";
+      setShowForm(false);
     }
     if (e.key === "Escape") {
       setShowForm(false);
@@ -122,15 +127,14 @@ export const BoardContainer = ({
         ></button>
       </form>
       {!showForm && (
-        <button
+        <Button
           type="button"
-          className={styles.add}
-          onClick={() => {
-            setShowForm(true);
-          }}
+          style={ButtonStyle.DASHED}
+          onClick={() => setShowForm(true)}
         >
-          Add new card
-        </button>
+          <Plus />
+          Add new task
+        </Button>
       )}
     </div>
   );

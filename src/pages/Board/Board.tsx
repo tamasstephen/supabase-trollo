@@ -9,6 +9,7 @@ import {
   UniqueIdentifier,
   DragOverlay,
 } from "@dnd-kit/core";
+import Plus from "@/assets/plus.svg";
 import styles from "@/styles/Board.module.scss";
 import {
   SortableContext,
@@ -22,13 +23,9 @@ import {
   AddBoardColumn,
   Error,
   Loading,
+  Button,
 } from "@/components";
-import {
-  BoardColumnFormElement,
-  DraggableBoardContainer,
-  BoardColumnType,
-  Task,
-} from "@/types";
+import { DraggableBoardContainer, BoardColumnType, Task } from "@/types";
 import { useParams } from "react-router-dom";
 import {
   useFetchBoardColumns,
@@ -36,7 +33,7 @@ import {
   useSave,
   useDeleteBoardColumn,
 } from "@/hooks";
-import { BoardPrefixes, TableNames } from "@/constants";
+import { BoardPrefixes, ButtonStyle, TableNames } from "@/constants";
 import {
   findActiveBoardListCard,
   sanitizeDraggableId,
@@ -45,7 +42,7 @@ import {
 } from "./helpers";
 import { useDelete } from "@/hooks/api/useDelete";
 import { useFetchBoard } from "@/hooks/api/useFetchBoard";
-import { TaskFormElement } from "@/types/FormTypes";
+import { InputTypes, TaskFormElement } from "@/types/FormTypes";
 
 export const Board = () => {
   const [activeId, setActiveId] = useState<UniqueIdentifier | null>(null);
@@ -126,12 +123,8 @@ export const Board = () => {
     });
   };
 
-  const addBoardColumn = async (e: React.FormEvent<BoardColumnFormElement>) => {
-    e.preventDefault();
-    const boardTitle = e.currentTarget.elements.boardColumnTitle.value;
-    //TODO: implement form check
-    if (!boardTitle) return;
-
+  const addBoardColumn = async (data: Pick<InputTypes, "boardColumnTitle">) => {
+    const boardTitle = data.boardColumnTitle as string;
     const newColumn = await saveToDb<BoardColumnType>(
       {
         board_id: parseInt(id as string),
@@ -140,11 +133,9 @@ export const Board = () => {
       },
       TableNames.COLUMN
     );
-
     if (!newColumn) {
       return;
     }
-
     setBoardColumn([
       ...boardColumns,
       {
@@ -218,14 +209,17 @@ export const Board = () => {
     <div>
       <div className={styles.header}>
         <h2>{boardData?.title}</h2>
-        <button
-          className={styles.addList}
+        <Button
+          style={ButtonStyle.DASHED}
           onClick={() => {
             setIsModalOpen(true);
           }}
+          type="button"
+          isSmall
         >
+          <Plus />
           Add list
-        </button>
+        </Button>
       </div>
       <div className={styles.container}>
         {isModalOpen && (

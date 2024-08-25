@@ -1,0 +1,46 @@
+@import "./base.scss";
+.button {
+  width: 100%;
+  transition: all 0.2s ease-in-out;
+  border: none;
+  padding: 0.5rem;
+  font-size: 1rem;
+
+  &:hover {
+    outline: none;
+    border: none;
+  }
+
+  &.small {
+    width: 150px;
+    font-size: 0.875rem;
+  }
+
+  &.primary {
+    background-color: $cta-blue;
+
+    &:hover {
+      background-color: $cta-blue-hover;
+    }
+  }
+
+  &.dashed {
+    border: 1px dashed $button-border-gray;
+    color: black;
+    background-color: white;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+
+    &:hover {
+      border-color: $cta-blue;
+      color: $cta-blue;
+    }
+
+    svg {
+      height: 1rem;
+      width: 1rem;
+      margin-right: 0.125rem;
+    }
+  }
+}

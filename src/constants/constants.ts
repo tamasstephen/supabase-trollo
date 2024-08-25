@@ -8,3 +8,8 @@ export enum TableNames {
   TASK = "task",
   BOARD = "board",
 }
+
+export enum ButtonStyle {
+  PRIMARY = "primary",
+  DASHED = "dashed",
+}

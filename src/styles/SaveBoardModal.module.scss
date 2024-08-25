@@ -28,6 +28,14 @@ fieldset {
       color: red;
     }
   }
+
+  input::file-selector-button {
+    background-color: white;
+    border: 1px solid $button-border-gray;
+    border-radius: 5px;
+    color: black;
+    padding: 0.5rem;
+  }
 }
 
 fieldset:nth-child(2) {
@@ -42,7 +50,7 @@ fieldset:nth-child(2) {
   top: 1rem;
   right: 1rem;
   padding: 0;
-  background-color: none;
+  background-color: white;
   border: none;
 }
 
@@ -53,21 +61,6 @@ fieldset:nth-child(2) {
 .close:focus,
 .close:focus-visible {
   outline: none;
-}
-
-.submit {
-  width: 100%;
-  background-color: $cta-gray;
-  transition: background-color 0.15s ease-in-out;
-  border: none;
-  padding: 0.5rem;
-  font-size: 1rem;
-
-  &:hover {
-    background-color: $cta-hover-gray;
-    outline: none;
-    border: none;
-  }
 }
 
 .input {

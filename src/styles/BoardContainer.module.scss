@@ -89,7 +89,7 @@
   width: 100%;
   background-color: white;
   transition: all 0.2s ease-in-out;
-  border: 1px dashed rgba(0, 0, 0, 0.2);
+  border: 1px dashed $button-border-gray;
   color: black;
   padding: 1rem;
 }

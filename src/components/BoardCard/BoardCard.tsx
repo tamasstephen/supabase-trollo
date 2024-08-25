@@ -1,5 +1,6 @@
 import { SyntheticEvent } from "react";
 import styles from "../../styles/BordCard.module.scss";
+import PlusIcon from "@/assets/plus.svg";
 
 interface BoardCardProps {
   title: string;
@@ -21,7 +22,7 @@ export const BoardCard = ({
       onClick={(e) => callback(e, title)}
     >
       <div
-        className={`${styles.boardCard}`}
+        className={`${styles.boardCard} ${center ? styles.boardCardAdd : ""}`}
         style={{
           backgroundImage: `url(${imageUrl})`,
         }}
@@ -33,7 +34,10 @@ export const BoardCard = ({
           }`}
         >
           <div className={`${styles.boardCard} ${styles.inner}`}></div>
-          <h3>{title}</h3>
+          <h3>
+            {center && <PlusIcon />}
+            {title}
+          </h3>
         </div>
       </div>
     </a>

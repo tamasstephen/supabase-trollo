@@ -1,19 +1,30 @@
 import { SaveBoardModal } from "./SaveBoardModal";
-import { screen, render, fireEvent } from "@testing-library/react";
+import {
+  screen,
+  render,
+  fireEvent,
+  act,
+  waitFor,
+} from "@testing-library/react";
 import { useSaveBoard } from "@/hooks";
-import { BoardsFormElement } from "@/types";
 import userEvent from "@testing-library/user-event";
 import "@testing-library/jest-dom";
 
 jest.mock("../../hooks/api/useSaveBoard.tsx");
 
+const mockedUseNavigate = jest.fn();
+
+jest.mock("react-router-dom", () => ({
+  ...jest.requireActual("react-router-dom"),
+  useNavigate: () => mockedUseNavigate,
+}));
+
 const mockUseSaveBoard = useSaveBoard as jest.MockedFunction<
   typeof useSaveBoard
 >;
 const mockCloseModal = jest.fn();
-const mockSaveBoard = jest.fn((event: React.FormEvent<BoardsFormElement>) => {
-  event.preventDefault();
-  return Promise.resolve();
+const mockSaveBoard = jest.fn(() => {
+  return Promise.resolve({ id: 1, title: "title" });
 });
 
 jest.mock("./SaveLoading.tsx", () => ({
@@ -64,14 +75,19 @@ describe("SaveBoardModal", () => {
     expect(mockCloseModal).toHaveBeenCalled();
   });
 
-  test("save function is called", () => {
+  test("save function is called", async () => {
     setupUseSaveBoard(false, false);
+    const user = userEvent.setup();
+    const inputValue = "goodboard";
     render(<SaveBoardModal closeModal={mockCloseModal} />);
 
     const saveButton = screen.getByText("Save Board");
-    fireEvent.submit(saveButton);
 
-    expect(mockSaveBoard).toHaveBeenCalled();
+    const input = screen.getByTestId("boardname");
+    await user.type(input, inputValue);
+    act(() => fireEvent.submit(saveButton));
+
+    await waitFor(() => expect(mockSaveBoard).toHaveBeenCalled());
   });
 
   test("user is able to type the board name", async () => {
@@ -80,7 +96,7 @@ describe("SaveBoardModal", () => {
     setupUseSaveBoard(false, false);
     render(<SaveBoardModal closeModal={mockCloseModal} />);
 
-    const input = screen.getByLabelText("Board title *");
+    const input = screen.getByTestId("boardname");
     await user.type(input, inputValue);
 
     expect(input).toHaveValue(inputValue);

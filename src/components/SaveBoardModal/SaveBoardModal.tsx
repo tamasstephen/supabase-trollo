@@ -1,10 +1,15 @@
-import { BoardsFormElement } from "@/types";
-
+import { InputTypes } from "@/types";
+import Plus from "@/assets/plus.svg";
 import CloseIcon from "@/assets/close.svg";
 import styles from "@/styles/SaveBoardModal.module.scss";
 import { useSaveBoard } from "@/hooks/";
 import { SaveLoading } from "./SaveLoading";
 import { SaveError } from "./SaveError";
+import { useForm } from "react-hook-form";
+import { Input } from "../Input";
+import { Button } from "../Button";
+import { useNavigate } from "react-router-dom";
+import { ButtonStyle } from "@/constants";
 
 interface SaveBoardModalProps {
   closeModal: () => void;
@@ -12,6 +17,12 @@ interface SaveBoardModalProps {
 
 export const SaveBoardModal = ({ closeModal }: SaveBoardModalProps) => {
   const { loading, error, saveBoard } = useSaveBoard();
+  const {
+    handleSubmit,
+    register,
+    formState: { errors },
+  } = useForm<InputTypes>();
+  const navigate = useNavigate();
 
   if (loading) {
     return <SaveLoading />;
@@ -32,31 +43,35 @@ export const SaveBoardModal = ({ closeModal }: SaveBoardModalProps) => {
         <CloseIcon />
       </button>
       <h3>Create a board</h3>
-      <form onSubmit={(e: React.FormEvent<BoardsFormElement>) => saveBoard(e)}>
+      <form
+        onSubmit={handleSubmit(async (data) => {
+          const res = await saveBoard(data);
+          if (!error && res) {
+            navigate(`/board/${res.id}`);
+          }
+        })}
+      >
         <fieldset>
           <label htmlFor="boardCover">Board cover</label>
           <input
             type="file"
             id="boardCover"
-            name="boardCover"
             accept="image/png, image/jpeg"
+            {...register("boardCover")}
           />
         </fieldset>
-        <fieldset>
-          <label htmlFor="boardName">
-            Board title <span className={styles.mandatory}>*</span>
-          </label>
-          <input
-            className={styles.input}
-            id="boardName"
-            name="boardName"
-            type="text"
-            required
-          />
-        </fieldset>
-        <button className={styles.submit} type="submit">
+        <Input
+          identifier="boardName"
+          label="Board name"
+          register={register}
+          required={{ required: "This field is required" }}
+          errors={errors}
+          testId="boardname"
+        />
+        <Button type="submit" style={ButtonStyle.PRIMARY}>
+          <Plus />
           Save Board
-        </button>
+        </Button>
       </form>
     </div>
   );

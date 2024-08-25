@@ -1,5 +1,5 @@
 import { useAuthContext } from "..";
-import { Board, BoardPayload, BoardsFormElement } from "@/types";
+import { Board, BoardPayload, BoardInputTypes } from "@/types";
 import { SupabaseClient } from "@supabase/supabase-js";
 import { useEffect, useState } from "react";
 import { useSave } from "./useSave";
@@ -43,19 +43,18 @@ export const useSaveBoard = () => {
     return response;
   };
 
-  const saveBoard = async (event: React.FormEvent<BoardsFormElement>) => {
+  const saveBoard = async ({ boardName, boardCover }: BoardInputTypes) => {
     if (!supabaseClient) {
       setError(true);
       return;
     }
-    event.preventDefault();
     setLoading(true);
     const payload: BoardPayload = { title: "" };
-    payload.title = event.currentTarget.elements.boardName.value;
-    if (event.currentTarget.elements.boardCover.files?.length) {
-      const boardCover = event.currentTarget.elements.boardCover.files[0];
+    payload.title = boardName;
+    if (boardCover && boardCover.length) {
+      const coverImage = boardCover[0];
       const isError = await saveBoardBackGround(
-        boardCover,
+        coverImage,
         supabaseClient,
         payload
       );
@@ -64,8 +63,9 @@ export const useSaveBoard = () => {
         return;
       }
     }
-    await saveBoardData(payload);
+    const res = await saveBoardData(payload);
     setLoading(false);
+    return res;
   };
 
   return { loading, error, saveBoard };

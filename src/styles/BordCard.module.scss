@@ -7,7 +7,9 @@
   color: white;
   transition: background-color 0.2s ease-in-out;
   cursor: pointer;
-  border-radius: 3px;
+  border-radius: 5px;
+  box-sizing: border-box;
+  overflow: hidden;
 
   h3 {
     display: inline-block;
@@ -26,8 +28,26 @@
       display: flex;
       justify-content: center;
       align-items: center;
-      background-color: $cta-gray;
       color: black;
+      background-color: white;
+      border: 2px dashed $button-border-gray;
+      transition: all 0.2s ease-in-out;
+
+      &:hover {
+        border: 2px dashed $cta-blue;
+        color: $cta-blue;
+      }
+
+      h3 {
+        display: flex;
+        align-items: center;
+
+        svg {
+          width: 1.125rem;
+          height: 1.125rem;
+          margin-right: 0.25rem;
+        }
+      }
     }
   }
 
@@ -39,9 +59,5 @@
     height: 100%;
     background-color: transparent;
     z-index: 2;
-
-    &:hover {
-      background-color: rgba(0, 0, 0, 0.15);
-    }
   }
 }

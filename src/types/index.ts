@@ -1,4 +1,4 @@
-export type { BoardsFormElement, BoardColumnFormElement } from "./FormTypes";
+export type { InputTypes, BoardInputTypes } from "./FormTypes";
 export type {
   Board,
   BoardColumnType,
