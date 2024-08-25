@@ -1,5 +1,5 @@
 import { useAuthContext } from "..";
-import { Board, BoardPayload, SaveBoardInputs } from "@/types";
+import { Board, BoardPayload, BoardInputTypes } from "@/types";
 import { SupabaseClient } from "@supabase/supabase-js";
 import { useEffect, useState } from "react";
 import { useSave } from "./useSave";
@@ -43,7 +43,7 @@ export const useSaveBoard = () => {
     return response;
   };
 
-  const saveBoard = async ({ boardName, boardCover }: SaveBoardInputs) => {
+  const saveBoard = async ({ boardName, boardCover }: BoardInputTypes) => {
     if (!supabaseClient) {
       setError(true);
       return;
@@ -51,7 +51,7 @@ export const useSaveBoard = () => {
     setLoading(true);
     const payload: BoardPayload = { title: "" };
     payload.title = boardName;
-    if (boardCover.length) {
+    if (boardCover && boardCover.length) {
       const coverImage = boardCover[0];
       const isError = await saveBoardBackGround(
         coverImage,
@@ -63,8 +63,9 @@ export const useSaveBoard = () => {
         return;
       }
     }
-    await saveBoardData(payload);
+    const res = await saveBoardData(payload);
     setLoading(false);
+    return res;
   };
 
   return { loading, error, saveBoard };

@@ -9,8 +9,8 @@ const updatedTheme = {
   variables: {
     default: {
       colors: {
-        brand: "#0079bf",
-        brandAccent: "#1138cc",
+        brand: "#3F00FF",
+        brandAccent: "#191970",
       },
     },
   },

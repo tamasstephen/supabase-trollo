@@ -1,0 +1,18 @@
+@import "./base.scss";
+
+.wrapper {
+  padding: 2rem;
+  box-shadow: $standard-shadow;
+  border-radius: 10px;
+  background-color: white;
+  min-width: 350px;
+
+  h2 {
+    font-size: $heading-2;
+    margin-top: 0;
+  }
+
+  button {
+    margin-top: 1rem;
+  }
+}

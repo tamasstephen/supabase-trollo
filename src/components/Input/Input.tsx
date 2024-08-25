@@ -1,12 +1,12 @@
-import { SaveBoardInputs } from "@/types";
 import { FieldErrors, Path, UseFormRegister } from "react-hook-form";
 import styles from "@/styles/Input.module.scss";
+import { InputTypes } from "@/types";
 
 type InputProps = {
-  identifier: Path<SaveBoardInputs>;
-  register: UseFormRegister<SaveBoardInputs>;
+  identifier: Path<InputTypes>;
+  register: UseFormRegister<InputTypes>;
   required: { required: string };
-  errors: FieldErrors<SaveBoardInputs>;
+  errors: FieldErrors<InputTypes>;
   label: string;
 };
 

@@ -1,19 +1,3 @@
-interface FormElements extends HTMLFormControlsCollection {
-  boardName: HTMLInputElement;
-  boardCover: HTMLInputElement;
-}
-export interface BoardsFormElement extends HTMLFormElement {
-  readonly elements: FormElements;
-}
-
-interface AddBoardColumnFormElement extends HTMLFormControlsCollection {
-  boardColumnTitle: HTMLInputElement;
-}
-
-export interface BoardColumnFormElement extends HTMLFormElement {
-  readonly elements: AddBoardColumnFormElement;
-}
-
 interface AddTaskFormElement extends HTMLFormControlsCollection {
   taskTitle: HTMLTextAreaElement;
 }
@@ -21,3 +5,12 @@ interface AddTaskFormElement extends HTMLFormControlsCollection {
 export interface TaskFormElement extends HTMLFormElement {
   readonly elements: AddTaskFormElement;
 }
+
+export type InputTypes = {
+  boardName: string;
+  boardColumnTitle: string;
+  boardCover: FileList;
+};
+
+export type BoardInputTypes = Required<Pick<InputTypes, "boardName">> &
+  Omit<InputTypes, "boardName">;

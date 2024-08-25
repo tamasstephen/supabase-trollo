@@ -19,8 +19,9 @@ fieldset {
   input {
     background-color: white;
     border: 1px solid $button-border-gray;
-    padding: 0.25rem;
+    padding: 0.5rem;
     border-radius: 5px;
+    color: black;
 
     &:focus {
       outline: none;

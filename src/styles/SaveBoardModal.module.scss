@@ -63,21 +63,6 @@ fieldset:nth-child(2) {
   outline: none;
 }
 
-.submit {
-  width: 100%;
-  background-color: $cta-gray;
-  transition: background-color 0.15s ease-in-out;
-  border: none;
-  padding: 0.5rem;
-  font-size: 1rem;
-
-  &:hover {
-    background-color: $cta-hover-gray;
-    outline: none;
-    border: none;
-  }
-}
-
 .input {
   padding: 0.5rem;
   border-radius: 5px;

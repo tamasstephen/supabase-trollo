@@ -9,3 +9,4 @@ export { AddBoardColumn } from "./AddBoardColumn";
 export { BoardContainer } from "./BoardContainer";
 export { BoardCard } from "./BoardCard";
 export { Input } from "./Input";
+export { Button } from "./Button";
