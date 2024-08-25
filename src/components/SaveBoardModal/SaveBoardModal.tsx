@@ -66,6 +66,7 @@ export const SaveBoardModal = ({ closeModal }: SaveBoardModalProps) => {
           register={register}
           required={{ required: "This field is required" }}
           errors={errors}
+          testId="boardname"
         />
         <Button type="submit" style={ButtonStyle.PRIMARY}>
           <Plus />

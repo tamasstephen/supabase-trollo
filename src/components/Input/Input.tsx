@@ -8,6 +8,7 @@ type InputProps = {
   required: { required: string };
   errors: FieldErrors<InputTypes>;
   label: string;
+  testId?: string;
 };
 
 export const Input = ({
@@ -16,6 +17,7 @@ export const Input = ({
   register,
   required,
   errors,
+  testId,
 }: InputProps) => {
   return (
     <fieldset>
@@ -26,6 +28,7 @@ export const Input = ({
         className={styles.input}
         type="text"
         {...register(identifier, required)}
+        data-testid={testId ? testId : ""}
       />
       {errors[identifier] ? (
         <p className={styles.error}>{errors?.[identifier].message}</p>

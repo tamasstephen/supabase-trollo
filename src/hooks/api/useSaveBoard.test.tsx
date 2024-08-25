@@ -1,7 +1,6 @@
-import { BoardsFormElement } from "@/types";
 import { useSaveBoard } from "./useSaveBoard";
 import { renderHook, waitFor } from "@testing-library/react";
-import { act, FormEvent, PropsWithChildren } from "react";
+import { act, PropsWithChildren } from "react";
 import nock from "nock";
 import { AuthContextProvider } from "@/components";
 
@@ -10,21 +9,25 @@ const wrapper = ({ children }: PropsWithChildren) => (
   <AuthContextProvider>{children}</AuthContextProvider>
 );
 
-const mockEvent = {
-  preventDefault: jest.fn(),
-  currentTarget: {
-    elements: {
-      boardName: "boardName",
-      boardCover: {
-        files: [
-          new File(["foo"], "foo.txt", {
-            type: "text/plain",
-          }),
-        ],
-      },
-    },
+const fileNames = ["foo.txt", "bar.txt"];
+
+const file1 = new File(["file1 content"], fileNames[0], { type: "text/plain" });
+const file2 = new File(["file2 content"], fileNames[1], { type: "text/plain" });
+
+const mockFileList = {
+  0: file1,
+  1: file2,
+  length: 2,
+  item: (index: number) => {
+    return [file1, file2][index];
   },
-} as unknown as FormEvent<BoardsFormElement>;
+} as unknown as FileList;
+
+const mockData = {
+  boardName: "name",
+  boardColumnTitle: "title",
+  boardCover: mockFileList,
+};
 
 describe("useSaveBoard", () => {
   afterEach(function () {
@@ -46,13 +49,13 @@ describe("useSaveBoard", () => {
       .persist()
       .post("/rest/v1/boards")
       .reply(200, { data: "whatever" })
-      .post("/storage/v1/object/board_cover/board_cover/foo.txt")
+      .post(`/storage/v1/object/board_cover/board_cover/${fileNames[0]}`)
       .reply(200, { data: "whatever" })
       .post("/rest/v1/boards?select=*")
       .reply(200, { data: "test" });
 
     act(() => {
-      saveBoard(mockEvent);
+      saveBoard(mockData);
 
       waitFor(() => expect(loading).toBe(true));
     });
@@ -65,7 +68,7 @@ describe("useSaveBoard", () => {
 
     nock(supaBaseMockEndpoint)
       .persist()
-      .post("/storage/v1/object/board_cover/board_cover/foo.txt")
+      .post(`/storage/v1/object/board_cover/board_cover/${fileNames[0]}`)
       .reply(200, { data: "whatever" })
       .post("/rest/v1/boards")
       .replyWithError({
@@ -73,7 +76,7 @@ describe("useSaveBoard", () => {
         code: "AWFUL_ERROR",
       });
 
-    await waitFor(async () => await result.current.saveBoard(mockEvent));
+    await waitFor(async () => await result.current.saveBoard(mockData));
 
     await waitFor(() => expect(result.current.error).toBe(true));
   });
@@ -85,14 +88,14 @@ describe("useSaveBoard", () => {
 
     nock(supaBaseMockEndpoint)
       .persist()
-      .post("/storage/v1/object/board_cover/board_cover/foo.txt")
+      .post(`/storage/v1/object/board_cover/board_cover/${fileNames[0]}`)
       .reply(200, { data: "whatever" })
       .post("/rest/v1/boards")
       .reply(200, { data: "whatever" })
       .post("/rest/v1/boards?select=*")
       .reply(200, { data: "test" });
 
-    await waitFor(async () => await result.current.saveBoard(mockEvent));
+    await waitFor(async () => await result.current.saveBoard(mockData));
 
     await waitFor(() => expect(result.current.error).toBe(false));
     await waitFor(() => expect(result.current.loading).toBe(false));
@@ -105,14 +108,14 @@ describe("useSaveBoard", () => {
 
     nock(supaBaseMockEndpoint)
       .persist()
-      .post("/storage/v1/object/board_cover/board_cover/foo.txt")
+      .post(`/storage/v1/object/board_cover/board_cover/${fileNames[0]}`)
       .replyWithError("ERROR")
       .post("/rest/v1/boards")
       .reply(200, { data: "whatever" })
       .post("/rest/v1/boards?select=*")
       .reply(200, { data: "test" });
 
-    await waitFor(async () => await result.current.saveBoard(mockEvent));
+    await waitFor(async () => await result.current.saveBoard(mockData));
 
     await waitFor(() => expect(result.current.error).toBe(true));
   });
