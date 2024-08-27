@@ -118,6 +118,7 @@ export const BoardContainer = ({
           name="taskTitle"
           id="taskTitle"
           onKeyDown={handleKeydown}
+          data-testid="textarea"
         ></textarea>
         <button
           ref={submitButton}
