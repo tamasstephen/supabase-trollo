@@ -25,6 +25,7 @@ export const AddBoardColumn = ({ callback }: AddBoardColumnProps) => {
           identifier="boardColumnTitle"
           errors={errors}
           required={{ required: "This field is required" }}
+          testId="columntitle"
         />
         <Button type="submit" style={ButtonStyle.PRIMARY}>
           Add new list
