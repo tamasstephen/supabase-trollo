@@ -35,11 +35,12 @@ export const BoardListCard = ({ id, title, onDelete }: ItemsType) => {
       }}
       className={`${styles.card} ${isDragging ? styles.dragged : ""}`}
     >
-      <div className={styles.cardInner}>
+      <div className={styles.cardInner} data-testid="containercard">
         {title}
         <button
           className={styles.taskButton}
           onClick={() => onDelete(id as string)}
+          data-testid="deletecard"
         >
           <Delete />
         </button>
