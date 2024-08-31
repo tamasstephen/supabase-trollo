@@ -52,12 +52,9 @@ export const Board = () => {
 
   const addNewTask = async (
     e: React.FormEvent<TaskFormElement>,
-    columnId: UniqueIdentifier | null
+    columnId: UniqueIdentifier
   ) => {
     e.preventDefault();
-    if (!columnId) {
-      return;
-    }
     const boardTitle = e.currentTarget.elements.taskTitle.value;
     const columnToEdit = boardColumns.find((col) => col.id === columnId);
     if (!columnToEdit) return;
