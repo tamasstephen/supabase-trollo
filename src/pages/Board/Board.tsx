@@ -1,39 +1,16 @@
 import { useState } from "react";
-import {
-  DndContext,
-  KeyboardSensor,
-  PointerSensor,
-  useSensor,
-  useSensors,
-  closestCorners,
-  UniqueIdentifier,
-  DragOverlay,
-} from "@dnd-kit/core";
-import Plus from "@/assets/plus.svg";
+import { UniqueIdentifier } from "@dnd-kit/core";
 import styles from "@/styles/Board.module.scss";
-import {
-  SortableContext,
-  sortableKeyboardCoordinates,
-} from "@dnd-kit/sortable";
-import { handleDragEnd, handleDragStart } from "./handlers";
-import {
-  BoardListCard,
-  Portal,
-  BoardContainer,
-  AddBoardColumn,
-  Error,
-  Loading,
-  Button,
-} from "@/components";
+import { Portal, AddBoardColumn, Error, Loading } from "@/components";
 import { DraggableBoardContainer, BoardColumnType, Task } from "@/types";
 import { useParams } from "react-router-dom";
 import {
   useFetchBoardColumns,
   useUpdate,
   useSave,
-  useDeleteBoardColumn,
+  useFetchBoard,
 } from "@/hooks";
-import { BoardPrefixes, ButtonStyle, TableNames } from "@/constants";
+import { BoardPrefixes, TableNames } from "@/constants";
 import {
   findActiveBoardListCard,
   sanitizeDraggableId,
@@ -41,8 +18,8 @@ import {
   updateContainerTasks,
 } from "./helpers";
 import { useDelete } from "@/hooks/api/useDelete";
-import { useFetchBoard } from "@/hooks/api/useFetchBoard";
 import { InputTypes, TaskFormElement } from "@/types/FormTypes";
+import { BoardHeader, ContainerList } from "./components";
 
 export const Board = () => {
   const [activeId, setActiveId] = useState<UniqueIdentifier | null>(null);
@@ -61,27 +38,11 @@ export const Board = () => {
     setBoardColumn
   );
   const { error: updateError, updateItem } = useUpdate();
-
-  const { error: deleteColumnError, deleteBoardColumn } =
-    useDeleteBoardColumn();
   const { error: deleteError, deleteItem } = useDelete();
-
   const { error: saveError, saveToDb } = useSave();
-  const sensors = useSensors(
-    useSensor(PointerSensor, {
-      activationConstraint: {
-        delay: 100,
-        tolerance: 8,
-        distance: 8,
-      },
-    }),
-    useSensor(KeyboardSensor, {
-      coordinateGetter: sortableKeyboardCoordinates,
-    })
-  );
 
   const hasToShowError = error || saveError;
-  updateError || deleteColumnError || deleteError || boardError;
+  updateError || deleteError || boardError;
 
   const activeContainer = findActiveContainers(
     activeId as string,
@@ -171,28 +132,21 @@ export const Board = () => {
   };
 
   const deleteBoardContainer = async (containerId: string) => {
-    await deleteBoardColumn(
-      sanitizeDraggableId(containerId),
-      boardColumns
-        .find((column) => column.id === containerId)
-        ?.items.map((item) => sanitizeDraggableId(item.id, BoardPrefixes.ITEM))
-    );
+    await deleteItem(sanitizeDraggableId(containerId), TableNames.COLUMN);
     setBoardColumn((prevColumns) => {
       const newColumns = prevColumns
         .filter((currentContainer) => containerId !== currentContainer.id)
         .map((container, idx) => {
           container.index = idx;
+          updateItem(
+            {
+              id: sanitizeDraggableId(container.id),
+              index: container.index,
+            },
+            TableNames.COLUMN
+          );
           return container;
         });
-      newColumns.forEach((column) =>
-        updateItem(
-          {
-            id: sanitizeDraggableId(column.id),
-            index: column.index,
-          },
-          TableNames.COLUMN
-        )
-      );
       return newColumns;
     });
   };
@@ -207,99 +161,25 @@ export const Board = () => {
 
   return (
     <div>
-      <div className={styles.header}>
-        <h2>{boardData?.title}</h2>
-        <Button
-          style={ButtonStyle.DASHED}
-          onClick={() => {
-            setIsModalOpen(true);
-          }}
-          type="button"
-          isSmall
-        >
-          <Plus />
-          Add list
-        </Button>
-      </div>
+      <BoardHeader boardData={boardData} setIsModalOpen={setIsModalOpen} />
       <div className={styles.container}>
         {isModalOpen && (
           <Portal closeModal={() => setIsModalOpen(false)}>
             <AddBoardColumn callback={addBoardColumn} />
           </Portal>
         )}
-        <DndContext
-          sensors={sensors}
-          collisionDetection={closestCorners}
-          onDragEnd={(e) =>
-            handleDragEnd(
-              e,
-              boardColumns,
-              setBoardColumn,
-              setActiveId,
-              updateItem
-            )
-          }
-          onDragStart={(e) => handleDragStart(e, setActiveId)}
-        >
-          <SortableContext items={boardColumns.map((i) => i.id)}>
-            {boardColumns.map((container) => (
-              <BoardContainer
-                id={container.id}
-                title={container.title}
-                key={container.id}
-                callback={addNewTask}
-                onDelete={() => deleteBoardContainer(container.id)}
-                description=""
-              >
-                <SortableContext
-                  id={container.id}
-                  items={container.items.map((i) => i.id)}
-                >
-                  <div className={styles.listcard}>
-                    {container.items.map((i) => (
-                      <BoardListCard
-                        title={i.title}
-                        id={i.id}
-                        key={i.id}
-                        onDelete={deleteTask}
-                      />
-                    ))}
-                  </div>
-                </SortableContext>
-              </BoardContainer>
-            ))}
-          </SortableContext>
-          <DragOverlay adjustScale={false}>
-            {/* Drag Overlay For item Item */}
-            {activeId && activeId.toString().includes("card") && (
-              <BoardListCard
-                id={activeId}
-                title={activeCard?.title || ""}
-                onDelete={deleteTask}
-              />
-            )}
-            {/* Drag Overlay For Container */}
-            {activeId && activeId.toString().includes("container") && (
-              <BoardContainer
-                id={activeId}
-                title={activeContainer?.title || ""}
-                callback={addNewTask}
-                onDelete={() => {}}
-              >
-                <div className={styles.listcard}>
-                  {activeContainer?.items.map((i) => (
-                    <BoardListCard
-                      key={i.id}
-                      title={i.title}
-                      id={i.id}
-                      onDelete={deleteTask}
-                    />
-                  ))}
-                </div>
-              </BoardContainer>
-            )}
-          </DragOverlay>
-        </DndContext>
+        <ContainerList
+          boardColumns={boardColumns}
+          setBoardColumn={setBoardColumn}
+          setActiveId={setActiveId}
+          updateItem={updateItem}
+          addNewTask={addNewTask}
+          deleteBoardContainer={deleteBoardContainer}
+          deleteTask={deleteTask}
+          activeId={activeId}
+          activeContainer={activeContainer}
+          activeCard={activeCard}
+        />
       </div>
     </div>
   );
