@@ -6,7 +6,7 @@ export enum BoardPrefixes {
 export enum TableNames {
   COLUMN = "board_column",
   TASK = "task",
-  BOARD = "board",
+  BOARD = "boards",
 }
 
 export enum ButtonStyle {
