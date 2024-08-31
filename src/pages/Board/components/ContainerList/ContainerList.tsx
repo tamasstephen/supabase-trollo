@@ -5,7 +5,6 @@ import {
   DragOverlay,
   KeyboardSensor,
   PointerSensor,
-  UniqueIdentifier,
   useSensor,
   useSensors,
 } from "@dnd-kit/core";
@@ -14,35 +13,9 @@ import {
   sortableKeyboardCoordinates,
 } from "@dnd-kit/sortable";
 import { handleDragEnd, handleDragStart } from "../../handlers";
-import {
-  DraggableBoardContainer,
-  UpdateColumnProps,
-  UpdateTaskProps,
-} from "@/types";
-import { Dispatch, SetStateAction } from "react";
-import styles from "@/styles/Board.module.scss";
-import { TableNames } from "@/constants";
-import { TaskFormElement } from "@/types/FormTypes";
-import { DraggableTask } from "@/types/Board";
+import { ContainerListProps } from "@/types";
 
-interface ContainerListProps {
-  boardColumns: DraggableBoardContainer[];
-  setBoardColumn: Dispatch<SetStateAction<DraggableBoardContainer[]>>;
-  setActiveId: Dispatch<SetStateAction<UniqueIdentifier | null>>;
-  updateItem: (
-    payload: UpdateColumnProps | UpdateTaskProps,
-    tableName: TableNames
-  ) => Promise<void>;
-  addNewTask: (
-    e: React.FormEvent<TaskFormElement>,
-    columnId: UniqueIdentifier | null
-  ) => Promise<void>;
-  deleteBoardContainer: (containerId: string) => Promise<void>;
-  deleteTask: (taskId: string) => void;
-  activeId: UniqueIdentifier | null;
-  activeContainer: DraggableBoardContainer | undefined;
-  activeCard: DraggableTask | undefined;
-}
+import styles from "@/styles/Board.module.scss";
 
 export const ContainerList = ({
   boardColumns,

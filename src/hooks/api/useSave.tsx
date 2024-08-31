@@ -9,7 +9,7 @@ interface BoardColumnPayload {
   board_id: number;
 }
 
-type SavePayload = BoardColumnPayload | BoardPayload | TaskPayload;
+export type SavePayload = BoardColumnPayload | BoardPayload | TaskPayload;
 
 export const useSave = (): {
   saveToDb: <T extends DbObject>(
