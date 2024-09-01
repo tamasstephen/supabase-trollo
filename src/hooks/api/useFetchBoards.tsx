@@ -1,24 +1,16 @@
 import { Board } from "../../types/Board";
 import { useCallback, useEffect, useState } from "react";
-import { useAuthContext } from "@/hooks";
+import { useFetch } from "./useFetch";
+import { TableNames } from "@/constants";
 
 export const useFetchBoards = () => {
-  const [loading, setLoading] = useState(false);
-  const [error, setError] = useState(false);
+  const { error, loading, supabaseClient, fetchData } = useFetch();
   const [data, setData] = useState<Board[] | null>(null);
-  const { supabaseClient } = useAuthContext();
 
   const fetchBoards = useCallback(async () => {
     if (supabaseClient) {
-      setLoading(true);
-      const { data, error } = await supabaseClient.from("boards").select();
-      if (error) {
-        setError(true);
-        return;
-      }
-
-      const boards = data as Board[];
-
+      const boards = await fetchData<Board>(TableNames.BOARD);
+      if (!boards) return;
       for (const board of boards) {
         if (board.background) {
           const { data } = await supabaseClient.storage
@@ -31,9 +23,8 @@ export const useFetchBoards = () => {
         }
       }
       setData(boards);
-      setLoading(false);
     }
-  }, [supabaseClient]);
+  }, [supabaseClient, fetchData]);
 
   useEffect(() => {
     fetchBoards();

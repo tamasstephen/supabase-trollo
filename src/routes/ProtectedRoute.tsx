@@ -5,7 +5,6 @@ import { Loading } from "@/components";
 
 export const ProtectedRoute = ({ children }: PropsWithChildren) => {
   const { isSignedIn, loading: contextLoading } = useAuthContext();
-
   if (contextLoading) {
     return <Loading />;
   }

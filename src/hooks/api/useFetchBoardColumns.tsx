@@ -1,55 +1,34 @@
-import {
-  Dispatch,
-  SetStateAction,
-  useCallback,
-  useEffect,
-  useState,
-} from "react";
-import { useAuthContext } from "../useAuthContext";
+import { Dispatch, SetStateAction, useCallback, useEffect } from "react";
 import { DraggableBoardContainer } from "@/types";
-import { BoardPrefixes } from "@/constants/constants";
-import { BoardColumnType, DraggableTask } from "@/types/Board";
-import { SupabaseClient } from "@supabase/supabase-js";
+import { BoardPrefixes, TableNames } from "@/constants/constants";
+import { BoardColumnType, DraggableTask, Task } from "@/types/Board";
+import { useFetch } from "./useFetch";
 
 export const useFetchBoardColumns = (
   boardId: number,
   setBoardColumns: Dispatch<SetStateAction<DraggableBoardContainer[]>>
 ) => {
-  const [loading, setLoading] = useState(false);
-  const [error, setError] = useState(false);
-  const { supabaseClient } = useAuthContext();
+  const { error, loading, fetchData } = useFetch();
 
   const fetchTasks = useCallback(
-    async (id: number, supabaseClient: SupabaseClient) => {
-      const { data, error } = await supabaseClient
-        .from("task")
-        .select()
-        .eq("board_id", id);
-      if (error) {
-        setError(true);
-      }
+    async (id: number) => {
+      const data = await fetchData<Task>(TableNames.TASK, true, {
+        filterBy: "board_id",
+        value: id,
+      });
       return data;
     },
-    []
+    [fetchData]
   );
 
   const fetchBoardColumns = useCallback(async () => {
-    if (!supabaseClient) {
-      setError(true);
-      return;
-    }
-    setLoading(true);
-    const { data, error } = await supabaseClient
-      .from("board_column")
-      .select()
-      .eq("board_id", boardId);
-    if (error) {
-      setError(true);
-      return;
-    }
-    const columns = data as BoardColumnType[];
+    const columns = await fetchData<BoardColumnType>(TableNames.COLUMN, true, {
+      filterBy: "board_id",
+      value: boardId,
+    });
+    if (!columns) return;
     for (const column of columns) {
-      const columnTasks = await fetchTasks(column.id, supabaseClient);
+      const columnTasks = await fetchTasks(column.id);
       if (columnTasks) {
         const tasks = columnTasks as unknown as DraggableTask[];
         column.items = tasks.map((task) => {
@@ -68,15 +47,7 @@ export const useFetchBoardColumns = (
       })
       .sort((a, b) => a.index - b.index);
     setBoardColumns(idPrefixedColumns);
-    setLoading(false);
-  }, [
-    supabaseClient,
-    setLoading,
-    setError,
-    boardId,
-    setBoardColumns,
-    fetchTasks,
-  ]);
+  }, [fetchData, boardId, setBoardColumns, fetchTasks]);
 
   useEffect(() => {
     fetchBoardColumns();

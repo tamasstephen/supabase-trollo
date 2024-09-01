@@ -11,3 +11,4 @@ export type {
   UpdateTaskProps,
 } from "./Board";
 export type { AuthContextProps } from "./AuthContext";
+export type { ContainerListProps } from "./ContainerList";
