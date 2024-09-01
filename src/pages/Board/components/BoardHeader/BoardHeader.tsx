@@ -8,26 +8,39 @@ import { Dispatch, SetStateAction } from "react";
 interface BoardHeaderProps {
   boardData: Board | null;
   setIsModalOpen: Dispatch<SetStateAction<boolean>>;
+  deleteBoard: () => void;
 }
 
 export const BoardHeader = ({
   boardData,
   setIsModalOpen,
+  deleteBoard,
 }: BoardHeaderProps) => {
   return (
     <div className={styles.header}>
       <h2>{boardData?.title}</h2>
-      <Button
-        style={ButtonStyle.DASHED}
-        onClick={() => {
-          setIsModalOpen(true);
-        }}
-        type="button"
-        isSmall
-      >
-        <Plus />
-        Add list
-      </Button>
+      <div className={styles.headerbuttons}>
+        <Button
+          style={ButtonStyle.DASHED}
+          onClick={deleteBoard}
+          type="button"
+          isDanger={true}
+          isSmall
+        >
+          Delete Board
+        </Button>
+        <Button
+          style={ButtonStyle.DASHED}
+          onClick={() => {
+            setIsModalOpen(true);
+          }}
+          type="button"
+          isSmall
+        >
+          <Plus />
+          Add list
+        </Button>
+      </div>
     </div>
   );
 };

@@ -4,6 +4,7 @@ import { TaskFormElement } from "@/types/FormTypes";
 import {
   Dispatch,
   FormEvent,
+  PropsWithChildren,
   SetStateAction,
   useEffect,
   useState,
@@ -19,6 +20,18 @@ import { DbObject } from "@/types/Board";
 import { SavePayload } from "@/hooks/api/useSave";
 import { render, screen, waitFor } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
+
+interface WrapperProps extends PropsWithChildren {}
+
+const mockedUseNavigate = jest.fn();
+const Wrapper = ({ children }: WrapperProps) => (
+  <div id="portal">{children}</div>
+);
+
+jest.mock("react-router-dom", () => ({
+  ...jest.requireActual("react-router-dom"),
+  useNavigate: () => mockedUseNavigate,
+}));
 
 const mockBoardColumns: DraggableBoardContainer[] = [
   {
@@ -191,5 +204,31 @@ describe("Board", () => {
     await user.click(deleteTaskButton);
 
     await waitFor(() => expect(columns[1].items.length).toBe(0));
+  });
+
+  test("it opens the add column modal", async () => {
+    const user = userEvent.setup();
+    render(<Board />, { wrapper: Wrapper });
+
+    const addColumn = screen.getByText("Add list");
+    await user.click(addColumn);
+
+    const modalTitle = screen.getByText("Create a new list");
+
+    expect(modalTitle).toBeInTheDocument();
+  });
+
+  test("it opens the delete board modal", async () => {
+    const user = userEvent.setup();
+    render(<Board />, { wrapper: Wrapper });
+
+    const deleteButton = screen.getByText("Delete Board");
+    await user.click(deleteButton);
+
+    const modalTitle = screen.getByText(
+      "Are you sure you want to delete this board?"
+    );
+
+    expect(modalTitle).toBeInTheDocument();
   });
 });

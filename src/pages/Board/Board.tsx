@@ -1,9 +1,9 @@
 import { useState } from "react";
 import { UniqueIdentifier } from "@dnd-kit/core";
 import styles from "@/styles/Board.module.scss";
-import { Portal, AddBoardColumn, Error, Loading } from "@/components";
+import { Portal, Error, Loading } from "@/components";
 import { DraggableBoardContainer, BoardColumnType, Task } from "@/types";
-import { useParams } from "react-router-dom";
+import { useNavigate, useParams } from "react-router-dom";
 import {
   useFetchBoardColumns,
   useUpdate,
@@ -19,11 +19,23 @@ import {
 } from "./helpers";
 import { useDelete } from "@/hooks/api/useDelete";
 import { InputTypes, TaskFormElement } from "@/types/FormTypes";
-import { BoardHeader, ContainerList } from "./components";
+import {
+  BoardHeader,
+  ContainerList,
+  AddBoardColumn,
+  DeleteBoard,
+} from "./components";
+
+enum ModalContent {
+  ADD_LIST,
+  DELETE_BOARD,
+}
 
 export const Board = () => {
+  const navigate = useNavigate();
   const [activeId, setActiveId] = useState<UniqueIdentifier | null>(null);
   const [isModalOpen, setIsModalOpen] = useState(false);
+  const [modalContent, setModalContent] = useState(ModalContent.ADD_LIST);
   const { id } = useParams();
   const [boardColumns, setBoardColumn] = useState<DraggableBoardContainer[]>(
     []
@@ -148,6 +160,11 @@ export const Board = () => {
     });
   };
 
+  const deleteBoard = () => {
+    deleteItem(parseInt(id as string), TableNames.BOARD);
+    navigate("/");
+  };
+
   if (hasToShowError) {
     return <Error />;
   }
@@ -158,11 +175,28 @@ export const Board = () => {
 
   return (
     <div>
-      <BoardHeader boardData={boardData} setIsModalOpen={setIsModalOpen} />
+      <BoardHeader
+        deleteBoard={() => {
+          setModalContent(ModalContent.DELETE_BOARD);
+          setIsModalOpen(true);
+        }}
+        boardData={boardData}
+        setIsModalOpen={() => {
+          setModalContent(ModalContent.ADD_LIST);
+          setIsModalOpen(true);
+        }}
+      />
       <div className={styles.container}>
         {isModalOpen && (
           <Portal closeModal={() => setIsModalOpen(false)}>
-            <AddBoardColumn callback={addBoardColumn} />
+            {modalContent === ModalContent.ADD_LIST ? (
+              <AddBoardColumn callback={addBoardColumn} />
+            ) : (
+              <DeleteBoard
+                onCancel={() => setIsModalOpen(false)}
+                onDelete={deleteBoard}
+              />
+            )}
           </Portal>
         )}
         <ContainerList

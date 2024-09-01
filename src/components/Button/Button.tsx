@@ -6,10 +6,12 @@ interface ButtonProps extends PropsWithChildren {
   type: "submit" | "button";
   style: ButtonStyle;
   onClick?: () => void;
+  isDanger?: boolean;
   isSmall?: boolean;
 }
 
 export const Button = ({
+  isDanger,
   isSmall,
   type,
   style,
@@ -26,7 +28,7 @@ export const Button = ({
       onClick={() => onClick && onClick()}
       className={`${styles.button} ${isSmall ? styles.small : ""}  ${
         buttonStyle[style]
-      } `}
+      } ${isDanger ? styles.danger : ""}`}
       type={type}
     >
       {children}
