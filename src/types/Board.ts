@@ -47,3 +47,5 @@ export type DraggableBoardContainer = Omit<BoardColumnType, "id" | "items"> &
 
 export type DraggableTask = Omit<Task, "id" | "board_id" | "index"> &
   DraggableId;
+
+export type SavePayload = BoardColumnPayload | BoardPayload | TaskPayload;

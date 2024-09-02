@@ -16,7 +16,7 @@ interface SaveBoardModalProps {
 }
 
 export const SaveBoardModal = ({ closeModal }: SaveBoardModalProps) => {
-  const { loading, error, saveBoard } = useSaveBoard();
+  const mutation = useSaveBoard();
   const {
     handleSubmit,
     register,
@@ -24,11 +24,11 @@ export const SaveBoardModal = ({ closeModal }: SaveBoardModalProps) => {
   } = useForm<InputTypes>();
   const navigate = useNavigate();
 
-  if (loading) {
+  if (mutation.isPending) {
     return <SaveLoading />;
   }
 
-  if (error) {
+  if (mutation.isError) {
     return <SaveError />;
   }
 
@@ -45,10 +45,8 @@ export const SaveBoardModal = ({ closeModal }: SaveBoardModalProps) => {
       <h3>Create a board</h3>
       <form
         onSubmit={handleSubmit(async (data) => {
-          const res = await saveBoard(data);
-          if (!error && res) {
-            navigate(`/board/${res.id}`);
-          }
+          const result = await mutation.mutateAsync(data);
+          navigate(`board/${result.id}`);
         })}
       >
         <fieldset>

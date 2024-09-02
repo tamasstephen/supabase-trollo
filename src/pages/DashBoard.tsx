@@ -9,11 +9,20 @@ import {
   Portal,
 } from "@/components/";
 import { useNavigate } from "react-router-dom";
+import { useFetch } from "@/hooks/api/useFetch";
+import { TableNames } from "@/constants";
+import { useFetchBoardCovers } from "@/hooks/api/useFetchBoardCover";
 
 export const Dashboard = () => {
-  const [isPortalOpen, setIsPortalOpen] = useState(false);
-  const { error, loading, data: boards } = useFetchBoards();
   const navigate = useNavigate();
+  const [isPortalOpen, setIsPortalOpen] = useState(false);
+  const { data, isError, isPending } = useFetch(
+    "board",
+    TableNames.BOARD,
+    false
+  );
+
+  const { data: boards } = useFetchBoardCovers(data);
 
   const closeModal = () => setIsPortalOpen(false);
 
@@ -28,11 +37,11 @@ export const Dashboard = () => {
     navigate(`/board/${id}`);
   };
 
-  if (error) {
+  if (isError) {
     return <Error />;
   }
 
-  if (loading) {
+  if (isPending) {
     return <Loading />;
   }
 
