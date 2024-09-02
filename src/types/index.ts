@@ -9,6 +9,9 @@ export type {
   Task,
   DraggableBoardContainer,
   UpdateTaskProps,
+  SavePayload,
+  DbObject,
 } from "./Board";
 export type { AuthContextProps } from "./AuthContext";
 export type { ContainerListProps } from "./ContainerList";
+export type { TrolloQueryKey } from "./QueryKey";
