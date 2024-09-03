@@ -1,3 +1,5 @@
+import { TableNames } from "@/constants";
+
 export interface DbObject {
   id: number;
   title: string;
@@ -49,3 +51,8 @@ export type DraggableTask = Omit<Task, "id" | "board_id" | "index"> &
   DraggableId;
 
 export type SavePayload = BoardColumnPayload | BoardPayload | TaskPayload;
+
+export interface UpdateBoardItemsArgs {
+  payload: UpdateColumnProps | UpdateTaskProps;
+  tableName: TableNames;
+}

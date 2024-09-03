@@ -41,7 +41,6 @@ export const useFetchTasksWithContainers = (
         return container;
       })
     );
-    console.log(result);
     return result.sort(
       (firstCont, secondCont) => firstCont.index - secondCont.index
     );

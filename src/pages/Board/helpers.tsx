@@ -1,9 +1,5 @@
 import { BoardPrefixes, TableNames } from "@/constants/constants";
-import {
-  DraggableBoardContainer,
-  UpdateColumnProps,
-  UpdateTaskProps,
-} from "@/types";
+import { DraggableBoardContainer, UpdateBoardItemsArgs } from "@/types";
 
 export const sanitizeDraggableId = (
   containerId: string,
@@ -32,10 +28,7 @@ export const findActiveContainers = (
 
 export const updateContainerTasks = (
   column: DraggableBoardContainer,
-  updateItem: (
-    payload: UpdateColumnProps | UpdateTaskProps,
-    tableName: TableNames
-  ) => void
+  updateItem: ({ payload, tableName }: UpdateBoardItemsArgs) => void
 ) => {
   for (const idx in column.items) {
     const realId = sanitizeDraggableId(
@@ -43,9 +36,9 @@ export const updateContainerTasks = (
       BoardPrefixes.ITEM
     );
     const containerId = sanitizeDraggableId(column.id, BoardPrefixes.COLUMN);
-    updateItem(
-      { id: realId, index: parseInt(idx), board_id: containerId },
-      TableNames.TASK
-    );
+    updateItem({
+      payload: { id: realId, index: parseInt(idx), board_id: containerId },
+      tableName: TableNames.TASK,
+    });
   }
 };

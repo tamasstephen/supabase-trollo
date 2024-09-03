@@ -4,8 +4,6 @@ export {
   useSaveBoard,
   useUpdate,
   useFetchBoards,
-  useFetchBoardColumns,
-  useSave,
   useFetchBoard,
   useDelete,
 } from "./api";

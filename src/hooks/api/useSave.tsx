@@ -1,47 +1,70 @@
-import { BoardPayload } from "@/types";
+import { TrolloQueryKey, DbObject, SavePayload } from "@/types";
 import { useState } from "react";
 import { useAuthContext } from "../useAuthContext";
-import { DbObject, TaskPayload } from "@/types/Board";
+import { useMutation, useQueryClient } from "@tanstack/react-query";
+import { TableNames } from "@/constants";
 
-interface BoardColumnPayload {
-  title: string;
-  index: number;
-  board_id: number;
+interface SaveQueryProps {
+  payload: SavePayload;
+  tableName: TableNames;
 }
 
-export type SavePayload = BoardColumnPayload | BoardPayload | TaskPayload;
-
-export const useSave = (): {
-  saveToDb: <T extends DbObject>(
-    payload: SavePayload,
-    tabeName: string
-  ) => Promise<T | undefined>;
-  error: boolean;
-  loading: boolean;
-} => {
-  const [loading, setLoading] = useState(false);
-  const [error, setError] = useState(false);
+export const useSaveQuery = (boardId: number | undefined) => {
+  const queryClient = useQueryClient();
   const { supabaseClient } = useAuthContext();
+  const [key, setKey] = useState<TrolloQueryKey>();
 
-  const saveToDb = async <T extends DbObject>(
-    payload: SavePayload,
-    tableName: string
-  ) => {
-    if (!supabaseClient) {
-      setError(true);
-      return;
+  const saveToDb = async <T extends DbObject>({
+    payload,
+    tableName,
+  }: SaveQueryProps) => {
+    if (!supabaseClient || !boardId) {
+      throw new Error("client is not available");
     }
+
+    const queryKeyMap: Record<Partial<TableNames>, TrolloQueryKey> = {
+      task: `tasks/${boardId}`,
+      boards: "board",
+      board_column: `board_columns/${boardId}`,
+    };
+
+    setKey(queryKeyMap[tableName]);
     const response = await supabaseClient
       .from(tableName)
       .insert(payload)
       .select();
     if (!response || response.error) {
-      setError(true);
-      return;
+      throw new Error(response.error.message);
     }
-    setLoading(false);
     return response.data[0] as T;
   };
 
-  return { saveToDb, error, loading };
+  return useMutation({
+    mutationFn: (payload: SaveQueryProps) => {
+      return saveToDb(payload);
+    },
+    onSuccess: async () => {
+      if (key?.split("/")[0] === "board_columns" && boardId) {
+        await queryClient.invalidateQueries({
+          queryKey: [`board_columns/${boardId}`],
+          refetchType: "active",
+        });
+        await queryClient.refetchQueries({
+          queryKey: [`board_columns/${boardId}`],
+        });
+        await queryClient.invalidateQueries({
+          queryKey: [`tasks/${boardId}`],
+          refetchType: "active",
+        });
+      } else if (key?.split("/")[0] === "tasks" && boardId) {
+        await queryClient.invalidateQueries({
+          queryKey: [`tasks/${boardId}`],
+          refetchType: "active",
+        });
+        queryClient.refetchQueries({
+          queryKey: [`tasks/${boardId}`],
+        });
+      }
+    },
+  });
 };

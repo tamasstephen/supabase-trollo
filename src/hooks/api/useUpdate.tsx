@@ -1,33 +1,37 @@
-import { useState } from "react";
 import { useAuthContext } from "../useAuthContext";
-import { UpdateColumnProps } from "@/types";
-import { UpdateTaskProps } from "@/types/Board";
-import { TableNames } from "@/constants/constants";
+import { UpdateBoardItemsArgs } from "@/types/Board";
+import { useMutation, useQueryClient } from "@tanstack/react-query";
 
-export const useUpdate = () => {
-  const [loading, setLoading] = useState(false);
-  const [error, setError] = useState(false);
+export const useUpdate = (id?: number | undefined) => {
   const { supabaseClient } = useAuthContext();
+  const queryClient = useQueryClient();
 
-  const updateItem = async (
-    payload: UpdateColumnProps | UpdateTaskProps,
-    tableName: TableNames
-  ) => {
+  const updateItem = async ({ payload, tableName }: UpdateBoardItemsArgs) => {
     if (!supabaseClient) {
-      setError(true);
-      return;
+      throw new Error("client is not available");
     }
-    setLoading(true);
+
     const { id, ...shallowPayload } = payload;
     const { error: updateError } = await supabaseClient
       .from(tableName)
       .update(shallowPayload)
       .eq("id", id);
     if (updateError) {
-      setError(true);
+      throw new Error(updateError.message);
     }
-    setLoading(false);
   };
-
-  return { error, loading, updateItem };
+  return useMutation({
+    mutationFn: (args: UpdateBoardItemsArgs) => updateItem(args),
+    onSuccess: async (_, variables) => {
+      if (
+        variables.tableName === "board_column" ||
+        (variables.tableName === "task" && id)
+      ) {
+        await queryClient.invalidateQueries({
+          queryKey: [`board_columns/${id}`],
+        });
+        await queryClient.invalidateQueries({ queryKey: [`tasks/${id}`] });
+      }
+    },
+  });
 };

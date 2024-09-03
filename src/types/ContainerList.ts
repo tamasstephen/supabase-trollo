@@ -2,21 +2,16 @@ import { Dispatch, SetStateAction } from "react";
 import {
   DraggableBoardContainer,
   DraggableTask,
-  UpdateColumnProps,
-  UpdateTaskProps,
+  UpdateBoardItemsArgs,
 } from "./Board";
 import { UniqueIdentifier } from "@dnd-kit/core";
-import { TableNames } from "@/constants";
 import { TaskFormElement } from "./FormTypes";
 
 export interface ContainerListProps {
   boardColumns: DraggableBoardContainer[];
   setBoardColumn: Dispatch<SetStateAction<DraggableBoardContainer[]>>;
   setActiveId: Dispatch<SetStateAction<UniqueIdentifier | null>>;
-  updateItem: (
-    payload: UpdateColumnProps | UpdateTaskProps,
-    tableName: TableNames
-  ) => Promise<void>;
+  updateItem: ({ payload, tableName }: UpdateBoardItemsArgs) => void;
   addNewTask: (
     e: React.FormEvent<TaskFormElement>,
     columnId: UniqueIdentifier

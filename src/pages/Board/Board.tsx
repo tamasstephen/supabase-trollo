@@ -1,8 +1,12 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { UniqueIdentifier } from "@dnd-kit/core";
 import styles from "@/styles/Board.module.scss";
 import { Portal, Error, Loading } from "@/components";
-import { DraggableBoardContainer, BoardColumnType } from "@/types";
+import {
+  DraggableBoardContainer,
+  BoardColumnType,
+  UpdateBoardItemsArgs,
+} from "@/types";
 import { useNavigate, useParams } from "react-router-dom";
 import { useUpdate } from "@/hooks";
 import { BoardPrefixes, TableNames } from "@/constants";
@@ -10,7 +14,6 @@ import {
   findActiveBoardListCard,
   sanitizeDraggableId,
   findActiveContainers,
-  updateContainerTasks,
 } from "./helpers";
 import { useDelete } from "@/hooks/api/useDelete";
 import { InputTypes, TaskFormElement } from "@/types/FormTypes";
@@ -74,7 +77,7 @@ export const Board = () => {
   } = useFetchTasksWithContainers(boardId, containers);
   const mutation = useSaveQuery(boardId);
 
-  const { error: updateError, updateItem } = useUpdate();
+  const updateMutation = useUpdate(boardId);
   const { error: deleteError, deleteItem } = useDelete();
 
   const hasToShowError = containerError || taskError || isBoardTitleError;
@@ -130,7 +133,7 @@ export const Board = () => {
       const newColumns = prevColumns.map((column) => {
         if (column.id === columnToUpdate.id) {
           column.items = column.items.filter((item) => item.id !== taskId);
-          updateContainerTasks(column, updateItem);
+          //updateContainerTasks(column, updateItem);
         }
         return column;
       });
@@ -145,13 +148,13 @@ export const Board = () => {
         .filter((currentContainer) => containerId !== currentContainer.id)
         .map((container, idx) => {
           container.index = idx;
-          updateItem(
+          /*  updateItem(
             {
               id: sanitizeDraggableId(container.id),
               index: container.index,
             },
             TableNames.COLUMN
-          );
+          ); */
           return container;
         });
       return newColumns;
@@ -162,6 +165,12 @@ export const Board = () => {
     deleteItem(parseInt(id as string), TableNames.BOARD);
     navigate("/");
   };
+
+  useEffect(() => {
+    if (boardContainers) {
+      setBoardColumn(boardContainers);
+    }
+  }, [boardContainers, setBoardColumn]);
 
   if (hasToShowError) {
     return <Error />;
@@ -198,10 +207,12 @@ export const Board = () => {
           </Portal>
         )}
         <ContainerList
-          boardColumns={boardContainers ? boardContainers : []}
+          boardColumns={boardColumns}
           setBoardColumn={setBoardColumn}
           setActiveId={setActiveId}
-          updateItem={updateItem}
+          updateItem={(args: UpdateBoardItemsArgs) =>
+            updateMutation.mutate(args)
+          }
           addNewTask={addNewTask}
           deleteBoardContainer={deleteBoardContainer}
           deleteTask={deleteTask}

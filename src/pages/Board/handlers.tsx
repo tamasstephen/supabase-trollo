@@ -1,6 +1,6 @@
 import { BoardPrefixes, TableNames } from "@/constants/constants";
-import { DraggableBoardContainer, UpdateColumnProps } from "@/types";
-import { UpdateTaskProps } from "@/types/Board";
+import { DraggableBoardContainer } from "@/types";
+import { UpdateBoardItemsArgs } from "@/types/Board";
 import { DragEndEvent, DragStartEvent, UniqueIdentifier } from "@dnd-kit/core";
 import { arrayMove } from "@dnd-kit/sortable";
 import { Dispatch } from "react";
@@ -11,10 +11,7 @@ export const handleDragEnd = (
   boardColumns: DraggableBoardContainer[],
   setBoardColumn: Dispatch<React.SetStateAction<DraggableBoardContainer[]>>,
   setActiveId: React.Dispatch<React.SetStateAction<UniqueIdentifier | null>>,
-  updateItem: (
-    payload: UpdateColumnProps | UpdateTaskProps,
-    tableName: TableNames
-  ) => void
+  updateItem: ({ payload, tableName }: UpdateBoardItemsArgs) => void
 ) => {
   const { active, over } = event;
 
@@ -48,22 +45,22 @@ export const handleDragEnd = (
     );
 
     //update index of active container with the index of over container
-    updateItem(
-      {
+    updateItem({
+      payload: {
         index: overContainerIndex,
         id: currentActiveContainerId,
       },
-      TableNames.COLUMN
-    );
+      tableName: TableNames.COLUMN,
+    });
 
     //update index of active container with the index of over container
-    updateItem(
-      {
+    updateItem({
+      payload: {
         index: activeContainerIndex,
         id: currentOverContainerId,
       },
-      TableNames.COLUMN
-    );
+      tableName: TableNames.COLUMN,
+    });
 
     const newItems = [...boardColumns];
     const newArray = arrayMove(

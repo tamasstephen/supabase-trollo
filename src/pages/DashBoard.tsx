@@ -1,5 +1,4 @@
 import { SyntheticEvent, useState } from "react";
-import { useFetchBoards } from "@/hooks/";
 import styles from "@/styles/Dashboard.module.scss";
 import {
   Error,
@@ -22,7 +21,11 @@ export const Dashboard = () => {
     false
   );
 
-  const { data: boards } = useFetchBoardCovers(data);
+  const {
+    data: boards,
+    isError: coverError,
+    isPending: coverPending,
+  } = useFetchBoardCovers(data);
 
   const closeModal = () => setIsPortalOpen(false);
 
@@ -37,11 +40,11 @@ export const Dashboard = () => {
     navigate(`/board/${id}`);
   };
 
-  if (isError) {
+  if (isError || coverError) {
     return <Error />;
   }
 
-  if (isPending) {
+  if (isPending || coverPending) {
     return <Loading />;
   }
 
