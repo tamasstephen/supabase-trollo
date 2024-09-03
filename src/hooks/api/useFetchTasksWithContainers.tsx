@@ -15,7 +15,6 @@ export const useFetchTasksWithContainers = (
     if (!supabaseClient) {
       throw new Error("client is not available");
     }
-
     const containersCopy = structuredClone(
       containers
     ) as unknown as DraggableBoardContainer[];
@@ -24,7 +23,8 @@ export const useFetchTasksWithContainers = (
         const { data, error } = await supabaseClient
           .from(TableNames.TASK)
           .select()
-          .eq("board_id", container.id);
+          .eq("board_id", container.id)
+          .order("index", { ascending: true });
         if (error) {
           throw new Error(error.message);
         }
@@ -49,6 +49,7 @@ export const useFetchTasksWithContainers = (
   const query = useQuery({
     queryKey: [`tasks/${boardId}`],
     queryFn: () => fetchTasks(),
+    enabled: !!containers,
   });
 
   return query;
