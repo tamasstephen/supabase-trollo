@@ -10,7 +10,6 @@ export const useUpdate = (id?: number | undefined) => {
     if (!supabaseClient) {
       throw new Error("client is not available");
     }
-
     const { id, ...shallowPayload } = payload;
     const { error: updateError } = await supabaseClient
       .from(tableName)
@@ -20,6 +19,7 @@ export const useUpdate = (id?: number | undefined) => {
       throw new Error(updateError.message);
     }
   };
+
   return useMutation({
     mutationFn: (args: UpdateBoardItemsArgs) => updateItem(args),
     onSuccess: async (_, variables) => {

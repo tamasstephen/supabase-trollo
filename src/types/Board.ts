@@ -11,7 +11,7 @@ export interface Board extends DbObject {
 }
 
 export interface BoardColumnType extends DbObject {
-  items: DraggableTask[];
+  items?: DraggableTask[];
   index: number;
 }
 
@@ -47,8 +47,7 @@ type DraggableId = { id: string };
 export type DraggableBoardContainer = Omit<BoardColumnType, "id" | "items"> &
   DraggableId & { items: DraggableTask[] };
 
-export type DraggableTask = Omit<Task, "id" | "board_id" | "index"> &
-  DraggableId;
+export type DraggableTask = Omit<Task, "id" | "board_id"> & DraggableId;
 
 export type SavePayload = BoardColumnPayload | BoardPayload | TaskPayload;
 

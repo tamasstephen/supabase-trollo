@@ -8,15 +8,19 @@ import {
   UpdateBoardItemsArgs,
 } from "@/types";
 import { useNavigate, useParams } from "react-router-dom";
-import { useUpdate } from "@/hooks";
+import {
+  useUpdate,
+  useSaveQuery,
+  useFetchTasksWithContainers,
+  useFetch,
+  useDeleteItem,
+} from "@/hooks";
 import { BoardPrefixes, TableNames } from "@/constants";
 import {
   findActiveBoardListCard,
-  sanitizeDraggableId,
   findActiveContainers,
   updateContainerTasks,
 } from "./helpers";
-import { useDeleteItem } from "@/hooks/api/useDeleteItem";
 import { InputTypes, TaskFormElement } from "@/types/FormTypes";
 import {
   BoardHeader,
@@ -24,10 +28,8 @@ import {
   AddBoardColumn,
   DeleteBoard,
 } from "./components";
-import { useFetch } from "@/hooks/api/useFetch";
 import { Board as BoardType } from "@/types";
-import { useFetchTasksWithContainers } from "@/hooks/api/useFetchTasksWithContainers";
-import { useSaveQuery } from "@/hooks/api/useSaveQuery";
+import { sanitizeDraggableId } from "@/utils";
 
 enum ModalContent {
   ADD_LIST,
@@ -57,7 +59,6 @@ export const Board = () => {
       value: boardId,
     }
   );
-
   const {
     data: containers,
     isError: containerError,
@@ -71,16 +72,13 @@ export const Board = () => {
       value: boardId,
     }
   );
-
-  const deleteMutation = useDeleteItem(boardId);
-
   const {
     data: boardContainers,
     isError: taskError,
     isPending: taskPending,
   } = useFetchTasksWithContainers(boardId, containers);
+  const deleteMutation = useDeleteItem(boardId);
   const saveMutation = useSaveQuery(boardId);
-
   const updateMutation = useUpdate(boardId);
 
   const hasToShowError =
@@ -105,11 +103,12 @@ export const Board = () => {
     const boardTitle = e.currentTarget.elements.taskTitle.value;
     const columnToEdit = boardContainers?.find((col) => col.id === columnId);
     if (!columnToEdit) return;
+    const realColumnId = sanitizeDraggableId(columnId as string);
     saveMutation.mutate({
       payload: {
-        index: columnToEdit?.items.length,
+        index: columnToEdit.items.length,
         title: boardTitle,
-        board_id: sanitizeDraggableId(columnId as string),
+        board_id: realColumnId,
       },
       tableName: TableNames.TASK,
     });

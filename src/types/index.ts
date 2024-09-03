@@ -16,3 +16,4 @@ export type {
 export type { AuthContextProps } from "./AuthContext";
 export type { ContainerListProps } from "./ContainerList";
 export type { TrolloQueryKey } from "./QueryKey";
+export type { SaveQueryProps } from "./SaveQueryProps";

@@ -1,18 +1,20 @@
-import { TrolloQueryKey, DbObject, SavePayload } from "@/types";
-import { useState } from "react";
+import {
+  TrolloQueryKey,
+  DbObject,
+  DraggableBoardContainer,
+  SaveQueryProps,
+} from "@/types";
+import { useRef, useState } from "react";
 import { useAuthContext } from "../useAuthContext";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { TableNames } from "@/constants";
-
-interface SaveQueryProps {
-  payload: SavePayload;
-  tableName: TableNames;
-}
+import { reArrangeTaskColumns } from "@/utils";
 
 export const useSaveQuery = (boardId: number | undefined) => {
   const queryClient = useQueryClient();
   const { supabaseClient } = useAuthContext();
   const [key, setKey] = useState<TrolloQueryKey>();
+  const updatedId = useRef(-1);
 
   const saveToDb = async <T extends DbObject>({
     payload,
@@ -27,7 +29,6 @@ export const useSaveQuery = (boardId: number | undefined) => {
       boards: "board",
       board_column: `board_columns/${boardId}`,
     };
-
     setKey(queryKeyMap[tableName]);
     const response = await supabaseClient
       .from(tableName)
@@ -36,6 +37,7 @@ export const useSaveQuery = (boardId: number | undefined) => {
     if (!response || response.error) {
       throw new Error(response.error.message);
     }
+    updatedId.current = response.data[0].id;
     return response.data[0] as T;
   };
 
@@ -43,27 +45,22 @@ export const useSaveQuery = (boardId: number | undefined) => {
     mutationFn: (payload: SaveQueryProps) => {
       return saveToDb(payload);
     },
-    onSuccess: async () => {
+    onSuccess: async (_, variables) => {
       if (key?.split("/")[0] === "board_columns" && boardId) {
         await queryClient.invalidateQueries({
           queryKey: [`board_columns/${boardId}`],
           refetchType: "active",
-        });
-        await queryClient.refetchQueries({
-          queryKey: [`board_columns/${boardId}`],
         });
         await queryClient.invalidateQueries({
           queryKey: [`tasks/${boardId}`],
           refetchType: "active",
         });
       } else if (key?.split("/")[0] === "tasks" && boardId) {
-        await queryClient.invalidateQueries({
-          queryKey: [`tasks/${boardId}`],
-          refetchType: "active",
-        });
-        queryClient.refetchQueries({
-          queryKey: [`tasks/${boardId}`],
-        });
+        await queryClient.setQueryData(
+          [`tasks/${boardId}`],
+          (oldData: DraggableBoardContainer[]) =>
+            reArrangeTaskColumns(oldData, updatedId, variables)
+        );
       }
     },
   });

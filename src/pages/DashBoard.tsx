@@ -8,9 +8,8 @@ import {
   Portal,
 } from "@/components/";
 import { useNavigate } from "react-router-dom";
-import { useFetch } from "@/hooks/api/useFetch";
+import { useFetch, useFetchBoardCovers } from "@/hooks";
 import { TableNames } from "@/constants";
-import { useFetchBoardCovers } from "@/hooks/api/useFetchBoardCover";
 
 export const Dashboard = () => {
   const navigate = useNavigate();

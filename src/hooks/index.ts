@@ -7,4 +7,5 @@ export {
   useSaveQuery,
   useFetch,
   useFetchTasksWithContainers,
+  useFetchBoardCovers,
 } from "./api";

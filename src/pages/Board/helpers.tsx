@@ -1,10 +1,6 @@
 import { BoardPrefixes, TableNames } from "@/constants/constants";
 import { DraggableBoardContainer, UpdateBoardItemsArgs } from "@/types";
-
-export const sanitizeDraggableId = (
-  containerId: string,
-  prefix?: BoardPrefixes
-) => parseInt(containerId.replace(prefix ? prefix : BoardPrefixes.COLUMN, ""));
+import { sanitizeDraggableId } from "@/utils";
 
 export const findActiveBoardListCard = (
   id: string,
