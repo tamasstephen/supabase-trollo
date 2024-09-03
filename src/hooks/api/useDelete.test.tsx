@@ -1,7 +1,7 @@
 import { SupabaseClient } from "@supabase/supabase-js";
 import * as hooks from "@/hooks/useAuthContext";
 import { act, renderHook, waitFor } from "@testing-library/react";
-import { useDelete } from "./useDelete";
+import { useDelete } from "./useDeleteItem";
 import { TableNames } from "@/constants";
 
 const mockUseAuthContext = jest.spyOn(hooks, "useAuthContext");

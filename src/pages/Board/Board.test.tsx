@@ -17,7 +17,7 @@ import {
 } from "@/types";
 import { BoardPrefixes, TableNames } from "@/constants";
 import { DbObject } from "@/types/Board";
-import { SavePayload } from "@/hooks/api/useSave";
+import { SavePayload } from "@/hooks/api/useSaveQuery";
 import { render, screen, waitFor } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 

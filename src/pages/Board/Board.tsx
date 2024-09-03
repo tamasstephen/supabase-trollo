@@ -14,8 +14,9 @@ import {
   findActiveBoardListCard,
   sanitizeDraggableId,
   findActiveContainers,
+  updateContainerTasks,
 } from "./helpers";
-import { useDelete } from "@/hooks/api/useDelete";
+import { useDeleteItem } from "@/hooks/api/useDeleteItem";
 import { InputTypes, TaskFormElement } from "@/types/FormTypes";
 import {
   BoardHeader,
@@ -26,7 +27,7 @@ import {
 import { useFetch } from "@/hooks/api/useFetch";
 import { Board as BoardType } from "@/types";
 import { useFetchTasksWithContainers } from "@/hooks/api/useFetchTasksWithContainers";
-import { useSaveQuery } from "@/hooks/api/useSave";
+import { useSaveQuery } from "@/hooks/api/useSaveQuery";
 
 enum ModalContent {
   ADD_LIST,
@@ -70,17 +71,25 @@ export const Board = () => {
       value: boardId,
     }
   );
+
+  const deleteMutation = useDeleteItem(boardId);
+
   const {
     data: boardContainers,
     isError: taskError,
     isPending: taskPending,
   } = useFetchTasksWithContainers(boardId, containers);
-  const mutation = useSaveQuery(boardId);
+  const saveMutation = useSaveQuery(boardId);
 
   const updateMutation = useUpdate(boardId);
-  const { error: deleteError, deleteItem } = useDelete();
 
-  const hasToShowError = containerError || taskError || isBoardTitleError;
+  const hasToShowError =
+    containerError ||
+    taskError ||
+    isBoardTitleError ||
+    updateMutation.error ||
+    deleteMutation.error ||
+    saveMutation.error;
 
   const activeContainer = findActiveContainers(
     activeId as string,
@@ -96,7 +105,7 @@ export const Board = () => {
     const boardTitle = e.currentTarget.elements.taskTitle.value;
     const columnToEdit = boardContainers?.find((col) => col.id === columnId);
     if (!columnToEdit) return;
-    mutation.mutate({
+    saveMutation.mutate({
       payload: {
         index: columnToEdit?.items.length,
         title: boardTitle,
@@ -108,7 +117,7 @@ export const Board = () => {
 
   const addBoardColumn = async (data: Pick<InputTypes, "boardColumnTitle">) => {
     const boardTitle = data.boardColumnTitle as string;
-    mutation.mutate({
+    saveMutation.mutate({
       payload: {
         board_id: parseInt(id as string),
         title: boardTitle,
@@ -125,15 +134,17 @@ export const Board = () => {
     if (!columnToUpdate) {
       return;
     }
-    deleteItem(
-      sanitizeDraggableId(taskId, BoardPrefixes.ITEM),
-      TableNames.TASK
-    );
+    deleteMutation.mutate({
+      itemId: sanitizeDraggableId(taskId, BoardPrefixes.ITEM),
+      tableName: TableNames.TASK,
+    });
     setBoardColumn((prevColumns) => {
       const newColumns = prevColumns.map((column) => {
         if (column.id === columnToUpdate.id) {
           column.items = column.items.filter((item) => item.id !== taskId);
-          //updateContainerTasks(column, updateItem);
+          updateContainerTasks(column, (args: UpdateBoardItemsArgs) =>
+            updateMutation.mutate(args)
+          );
         }
         return column;
       });
@@ -142,19 +153,22 @@ export const Board = () => {
   };
 
   const deleteBoardContainer = async (containerId: string) => {
-    await deleteItem(sanitizeDraggableId(containerId), TableNames.COLUMN);
+    await deleteMutation.mutateAsync({
+      itemId: sanitizeDraggableId(containerId),
+      tableName: TableNames.COLUMN,
+    });
     setBoardColumn((prevColumns) => {
       const newColumns = prevColumns
         .filter((currentContainer) => containerId !== currentContainer.id)
         .map((container, idx) => {
           container.index = idx;
-          /*  updateItem(
-            {
+          updateMutation.mutate({
+            payload: {
               id: sanitizeDraggableId(container.id),
               index: container.index,
             },
-            TableNames.COLUMN
-          ); */
+            tableName: TableNames.COLUMN,
+          });
           return container;
         });
       return newColumns;
@@ -162,7 +176,10 @@ export const Board = () => {
   };
 
   const deleteBoard = () => {
-    deleteItem(parseInt(id as string), TableNames.BOARD);
+    deleteMutation.mutate({
+      itemId: parseInt(id as string),
+      tableName: TableNames.BOARD,
+    });
     navigate("/");
   };
 
