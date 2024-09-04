@@ -25,6 +25,7 @@ export const ContainerList = ({
   addNewTask,
   deleteBoardContainer,
   deleteTask,
+  updateColumnMove,
   activeId,
   activeContainer,
   activeCard,
@@ -46,7 +47,14 @@ export const ContainerList = ({
       sensors={sensors}
       collisionDetection={closestCorners}
       onDragEnd={(e) =>
-        handleDragEnd(e, boardColumns, setBoardColumn, setActiveId, updateItem)
+        handleDragEnd(
+          e,
+          boardColumns,
+          setBoardColumn,
+          setActiveId,
+          updateItem,
+          updateColumnMove
+        )
       }
       onDragStart={(e) => handleDragStart(e, setActiveId)}
     >

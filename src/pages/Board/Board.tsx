@@ -6,6 +6,7 @@ import {
   DraggableBoardContainer,
   BoardColumnType,
   UpdateBoardItemsArgs,
+  ColumnMovePayload,
 } from "@/types";
 import { useNavigate, useParams } from "react-router-dom";
 import {
@@ -30,6 +31,7 @@ import {
 } from "./components";
 import { Board as BoardType } from "@/types";
 import { sanitizeDraggableId } from "@/utils";
+import { useUpdateColumnMove } from "@/hooks/api/useUpdateColumnMove";
 
 enum ModalContent {
   ADD_LIST,
@@ -80,6 +82,7 @@ export const Board = () => {
   const deleteMutation = useDeleteItem(boardId);
   const saveMutation = useSaveQuery(boardId);
   const updateMutation = useUpdate(boardId);
+  const updateColumnMoveMutation = useUpdateColumnMove(boardId);
 
   const hasToShowError =
     containerError ||
@@ -228,6 +231,9 @@ export const Board = () => {
           setActiveId={setActiveId}
           updateItem={(args: UpdateBoardItemsArgs) =>
             updateMutation.mutate(args)
+          }
+          updateColumnMove={(args: ColumnMovePayload) =>
+            updateColumnMoveMutation.mutate(args)
           }
           addNewTask={addNewTask}
           deleteBoardContainer={deleteBoardContainer}

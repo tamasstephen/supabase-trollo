@@ -51,6 +51,9 @@ export const useSaveQuery = (boardId: number | undefined) => {
           queryKey: [`board_columns/${boardId}`],
           refetchType: "active",
         });
+        await queryClient.refetchQueries({
+          queryKey: [`board_columns/${boardId}`],
+        });
         await queryClient.invalidateQueries({
           queryKey: [`tasks/${boardId}`],
           refetchType: "active",

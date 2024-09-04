@@ -1,5 +1,6 @@
 import { Dispatch, SetStateAction } from "react";
 import {
+  ColumnMovePayload,
   DraggableBoardContainer,
   DraggableTask,
   UpdateBoardItemsArgs,
@@ -18,6 +19,7 @@ export interface ContainerListProps {
   ) => Promise<void>;
   deleteBoardContainer: (containerId: string) => Promise<void>;
   deleteTask: (taskId: string) => void;
+  updateColumnMove: (payload: ColumnMovePayload) => void;
   activeId: UniqueIdentifier | null;
   activeContainer: DraggableBoardContainer | undefined;
   activeCard: DraggableTask | undefined;

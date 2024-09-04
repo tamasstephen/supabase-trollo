@@ -16,16 +16,22 @@ export interface BoardColumnType extends DbObject {
 }
 
 export interface UpdateColumnProps {
-  index?: number;
+  index: number;
   title?: string;
   id: number;
 }
 
+//TODO: remove
 export interface UpdateTaskProps extends UpdateColumnProps {
   description?: string;
   board_id: number;
 }
-
+// ------
+export interface Task extends DbObject {
+  board_id: number;
+  description?: string;
+  index: number;
+}
 export interface BoardColumnPayload {
   title: string;
   index: number;
@@ -34,10 +40,9 @@ export interface BoardColumnPayload {
 
 export type BoardPayload = Omit<Board, "image" | "id">;
 
-export interface Task extends DbObject {
-  board_id: number;
-  description?: string;
-  index: number;
+export interface ColumnMovePayload {
+  payload: BoardColumnType[];
+  tableName: TableNames;
 }
 
 export type TaskPayload = Omit<Task, "id">;
