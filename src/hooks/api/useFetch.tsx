@@ -35,7 +35,7 @@ export const useFetch = <T extends DbObject>(
   );
 
   const query = useQuery({
-    queryKey: [queryKey, tableName, enableQueryFilter, currentQueryParams],
+    queryKey: [queryKey],
     queryFn: () => fetchData(tableName, enableQueryFilter, currentQueryParams),
   });
 

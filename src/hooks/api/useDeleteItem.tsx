@@ -1,5 +1,6 @@
 import { useAuthContext } from "../useAuthContext";
 import { TableNames } from "@/constants";
+import { BoardColumnType } from "@/types";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 
 interface DeleteArgs {
@@ -27,18 +28,26 @@ export const useDeleteItem = (id?: number | undefined) => {
   };
 
   return useMutation({
-    mutationFn: (args: DeleteArgs) => deleteItem(args),
-    onSuccess: (_, variables) => {
+    mutationFn: (args: DeleteArgs) => {
+      return deleteItem(args);
+    },
+    onSuccess: async (_, variables) => {
       if (variables.tableName === TableNames.BOARD) {
         queryClient.invalidateQueries({ queryKey: ["board"] });
-      }
-      if (
-        (variables.tableName === TableNames.COLUMN ||
-          variables.tableName === TableNames.TASK) &&
-        id
-      ) {
+      } else if (variables.tableName === TableNames.TASK && id) {
         queryClient.invalidateQueries({ queryKey: [`board_columns/${id}`] });
         queryClient.invalidateQueries({ queryKey: [`tasks/${id}`] });
+      } else if (variables.tableName === TableNames.COLUMN && id) {
+        await queryClient.setQueryData(
+          [`board_columns/${id}`],
+          (oldData: BoardColumnType[]) => {
+            const oldCopy = structuredClone(oldData);
+            const result = oldCopy.filter(
+              (container) => container.id !== variables.itemId
+            );
+            return result;
+          }
+        );
       }
     },
   });
