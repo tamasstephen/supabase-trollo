@@ -1,6 +1,11 @@
-import { ColumnMovePayload } from "@/types";
+import {
+  BoardColumnType,
+  ColumnMovePayload,
+  DraggableBoardContainer,
+} from "@/types";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { useAuthContext } from "../useAuthContext";
+import { BoardPrefixes } from "@/constants";
 
 export const useUpdateColumnMove = (boardId: number) => {
   const { supabaseClient } = useAuthContext();
@@ -12,12 +17,14 @@ export const useUpdateColumnMove = (boardId: number) => {
     }
     await Promise.all(
       payload.map(async (currentPayload) => {
-        const { id, ...shallowPayload } = currentPayload;
+        const { id, index, title, ...rest } = currentPayload;
 
         const { error: updateError } = await supabaseClient
           .from(tableName)
-          .update(shallowPayload)
-          .eq("id", id);
+          .update({ index, title })
+          .eq("id", id)
+          .select();
+
         if (updateError) {
           throw new Error(updateError.message);
         }
@@ -28,7 +35,19 @@ export const useUpdateColumnMove = (boardId: number) => {
   return useMutation({
     mutationFn: (args: ColumnMovePayload) => updateColumns(args),
     onSuccess: async (_, variables) => {
-      queryClient.setQueryData([`tasks/${boardId}`], () => variables);
+      await queryClient.invalidateQueries({
+        queryKey: [`board_columns/${boardId}`],
+      });
+      await queryClient.setQueryData([`tasks/${boardId}`], () => {
+        const newData = variables.payload.map((container) => {
+          const newContainer = {
+            ...container,
+            id: `${BoardPrefixes.COLUMN}${container.id}`,
+          } as DraggableBoardContainer;
+          return newContainer;
+        });
+        return newData;
+      });
     },
   });
 };

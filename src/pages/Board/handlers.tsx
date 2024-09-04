@@ -44,15 +44,14 @@ export const handleDragEnd = (
       return;
     }
 
-    const newItems = [...boardColumns];
+    const payLoadContainers = structuredClone(boardColumns);
     const newArray = arrayMove(
-      newItems,
+      payLoadContainers,
       activeContainerIndex,
       overContainerIndex
     );
-    const payLoadContainers = structuredClone(newArray);
 
-    const payload = payLoadContainers.map((container, index) => {
+    const payload = newArray.map((container, index) => {
       container.index = index;
       const newId = sanitizeDraggableId(container.id);
       const newContainer = { ...container, id: newId } as BoardColumnType;
