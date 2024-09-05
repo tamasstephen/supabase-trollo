@@ -98,7 +98,11 @@ export const BoardContainer = ({
       <div>
         <div className={styles.header}>
           <h2>{title}</h2>
-          <button className={styles.close} onClick={onDelete}>
+          <button
+            className={styles.close}
+            data-testid="deletecolumn"
+            onClick={onDelete}
+          >
             <DeleteIcon />
           </button>
         </div>

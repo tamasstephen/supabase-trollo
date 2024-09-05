@@ -1,31 +1,32 @@
 import { Board } from "@/pages/";
-import * as hooks from "@/hooks";
-import { TaskFormElement } from "@/types/FormTypes";
-import {
-  Dispatch,
-  FormEvent,
-  PropsWithChildren,
-  SetStateAction,
-  useEffect,
-  useState,
-} from "react";
-import {
-  ContainerListProps,
-  DraggableBoardContainer,
-  UpdateColumnProps,
-  UpdateTaskProps,
-} from "@/types";
-import { BoardPrefixes, TableNames } from "@/constants";
-import { DbObject } from "@/types/Board";
-import { SavePayload } from "@/hooks/api/useSaveQuery";
+import { act, PropsWithChildren } from "react";
+import { BoardColumnType, Task } from "@/types";
 import { render, screen, waitFor } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
+import nock from "nock";
+import { MemoryRouter, Route, Routes } from "react-router";
+import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
+import { AuthContextProvider } from "@/components";
 
 interface WrapperProps extends PropsWithChildren {}
 
+const supaBaseMockEndpoint = "https://www.url.com";
 const mockedUseNavigate = jest.fn();
-const Wrapper = ({ children }: WrapperProps) => (
-  <div id="portal">{children}</div>
+const queryClient = new QueryClient({
+  defaultOptions: {
+    queries: {
+      // ✅ turns retries off
+      retry: false,
+    },
+  },
+});
+const wrapper = ({ children }: WrapperProps) => (
+  <QueryClientProvider client={queryClient}>
+    <AuthContextProvider>
+      <div id="portal"></div>
+      {children}
+    </AuthContextProvider>
+  </QueryClientProvider>
 );
 
 jest.mock("react-router-dom", () => ({
@@ -33,202 +34,185 @@ jest.mock("react-router-dom", () => ({
   useNavigate: () => mockedUseNavigate,
 }));
 
-const mockBoardColumns: DraggableBoardContainer[] = [
+const mockBoardColumns: BoardColumnType[] = [
   {
-    id: `${BoardPrefixes.COLUMN}-1`,
+    id: 1,
     title: "board title",
-    items: [
-      { id: `${BoardPrefixes.ITEM}-3`, title: "title" },
-      { id: `${BoardPrefixes.ITEM}-4`, title: "title-card2" },
-    ],
-    index: 1,
-  },
-  {
-    id: `${BoardPrefixes.COLUMN}-2`,
-    title: "board title2",
-    items: [{ id: `${BoardPrefixes.ITEM}-5`, title: "title" }],
-    index: 2,
-  },
-  {
-    id: `${BoardPrefixes.COLUMN}-3`,
-    title: "board title3",
-    items: [{ id: `${BoardPrefixes.ITEM}-6`, title: "title" }],
-    index: 2,
+    index: 0,
   },
 ];
 
-const mockUpdateItem = jest.fn(
-  // eslint-disable-next-line @typescript-eslint/no-unused-vars
-  (payload: UpdateColumnProps | UpdateTaskProps, tableName: TableNames) =>
-    Promise.resolve()
-);
+const mockTasks: Task[] = [{ id: 1, title: "title", board_id: 1, index: 0 }];
 
-// eslint-disable-next-line @typescript-eslint/no-unused-vars
-const mockDeleteItem = jest.fn((itemId: number, tableName: TableNames) =>
-  Promise.resolve(undefined)
-);
-
-const mockSaveToDb = jest.fn(
-  async <T extends DbObject>(
-    payload: SavePayload,
-    _tabeName: string
-  ): Promise<T | undefined> => {
-    if (_tabeName === "error") return;
-    return payload as T;
-  }
-) as unknown as <T extends DbObject>(
-  payload: SavePayload,
-  tabeName: string
-) => Promise<T | undefined>;
-
-let columns: DraggableBoardContainer[] = [];
-
-jest.mock("./components/ContainerList", () => ({
-  ContainerList: ({
-    boardColumns,
-    addNewTask,
-    deleteBoardContainer,
-    deleteTask,
-  }: ContainerListProps) => {
-    useEffect(() => {
-      columns = boardColumns;
-    }, [boardColumns]);
-    return (
-      <div>
-        <input type="text" name="taskTitle" id="taskTitle" />
-        <button>Add task</button>
-        <button
-          onClick={() => deleteTask(`${mockBoardColumns[1].items[0].id}`)}
-        >
-          Delete Task
-        </button>
-        <button onClick={() => deleteBoardContainer(mockBoardColumns[2].id)}>
-          Delete container
-        </button>
-        <form
-          action=""
-          onSubmit={(e: FormEvent<TaskFormElement>) =>
-            addNewTask(e, mockBoardColumns[0].id)
-          }
-        >
-          <textarea
-            id="taskTitle"
-            name="taskTitle"
-            defaultValue="A new card"
-          ></textarea>
-          <button type="submit">Add new task</button>
-        </form>
-        <ul>
-          {boardColumns.map((column, id) => (
-            <p key={id}>{column.title}</p>
-          ))}
-        </ul>
-      </div>
-    );
-  },
-}));
-
-const mockUseFetchBoard = jest.spyOn(hooks, "useFetchBoard");
-const mockUseFetchBoardColumns = jest.spyOn(hooks, "useFetchBoardColumns");
-const mockUseUpdate = jest.spyOn(hooks, "useUpdate");
-const mockDelete = jest.spyOn(hooks, "useDelete");
-const mockSave = jest.spyOn(hooks, "useSave");
-
-beforeEach(() => {
-  mockUseFetchBoard.mockImplementation(() => {
-    const [error] = useState(false);
-    const [loading] = useState(false);
-    const [data] = useState({ title: "Board", id: 1 });
-    return { error, loading, data };
-  });
-  mockUseFetchBoardColumns.mockImplementation(
-    (
-      boardId: number,
-      setBoardColumns: Dispatch<SetStateAction<DraggableBoardContainer[]>>
-    ) => {
-      useEffect(() => {
-        setBoardColumns(mockBoardColumns);
-      }, [setBoardColumns, boardId]);
-
-      return { error: false, loading: false };
-    }
+const setupBoard = () =>
+  render(
+    <MemoryRouter initialEntries={["/board/1"]}>
+      <Routes>
+        <Route path="/board/:id" element={<Board />} />
+      </Routes>
+    </MemoryRouter>,
+    { wrapper }
   );
-  mockUseUpdate.mockImplementation(() => ({
-    error: false,
-    loading: false,
-    updateItem: mockUpdateItem,
-  }));
-  mockDelete.mockImplementation(() => ({
-    error: false,
-    loading: false,
-    deleteItem: mockDeleteItem,
-  }));
-  mockSave.mockImplementation(() => ({
-    loading: false,
-    error: false,
-    saveToDb: mockSaveToDb,
-  }));
-});
+
+const setupNock = () =>
+  nock(supaBaseMockEndpoint)
+    .persist()
+    .get("/rest/v1/boards?select=*&id=eq.1")
+    .reply(200, [{ title: "Board", id: 1 }])
+    .get("/rest/v1/board_column?select=*&board_id=eq.1")
+    .reply(200, mockBoardColumns)
+    .get(`/rest/v1/task?select=*&board_id=eq.1&order=index.asc`)
+    .reply(200, mockTasks);
 
 describe("Board", () => {
+  beforeEach(() => {
+    global.structuredClone = jest.fn((val) => {
+      return JSON.parse(JSON.stringify(val));
+    });
+  });
+  afterEach(function () {
+    nock.cleanAll();
+    nock.restore();
+    nock.activate();
+    //global.structuredClone.mockRestore();
+  });
+
   test("board renders", async () => {
-    render(<Board />);
+    setupNock();
+
+    setupBoard();
+
     await waitFor(() => expect(screen.getByText("Board")).toBeInTheDocument());
   });
 
   test("it adds a new task to the columns", async () => {
     const user = userEvent.setup();
-    render(<Board />);
+
+    setupNock()
+      .post("/api/task")
+      .reply(200, [{ title: "abc", index: 1, id: 2, boardId: 1 }])
+      .post("/rest/v1/task?select=*")
+      .reply(200, [{ title: "abc", index: 1, id: 2, boardId: 1 }])
+      .get(`/rest/v1/task?select=*&board_id=eq.1`)
+      .reply(200, [
+        ...mockTasks,
+        [{ title: "abc", index: 1, id: 2, boardId: 1 }],
+      ]);
+
+    setupBoard();
+
+    await waitFor(() => expect(screen.getByText("Board")).toBeInTheDocument());
 
     const addTaskButton = screen.getByText("Add new task");
-    await user.click(addTaskButton);
+    screen.getByText("board title");
+    await act(async () => await user.click(addTaskButton));
 
-    expect(columns[0].items.length).toBe(3);
+    const textArea = screen.getByTestId("textarea");
+    await user.type(textArea, "abc{enter}");
+
+    await waitFor(() => screen.getByText("abc"));
   });
 
-  test("it deletes a board column", async () => {
+  test("it deletes the column", async () => {
     const user = userEvent.setup();
-    render(<Board />);
 
-    const deleteContainerButton = screen.getByText("Delete container");
-    await user.click(deleteContainerButton);
+    setupNock().delete("/rest/v1/board_column?id=eq.1").reply(200);
 
-    await waitFor(() => expect(columns.length).toBe(2));
-  });
+    setupBoard();
 
-  test("it deletes the task", async () => {
-    const user = userEvent.setup();
-    render(<Board />);
+    await waitFor(() => expect(screen.getByText("Board")).toBeInTheDocument());
 
-    const deleteTaskButton = screen.getByText("Delete Task");
-    await user.click(deleteTaskButton);
-
-    await waitFor(() => expect(columns[1].items.length).toBe(0));
-  });
-
-  test("it opens the add column modal", async () => {
-    const user = userEvent.setup();
-    render(<Board />, { wrapper: Wrapper });
-
-    const addColumn = screen.getByText("Add list");
-    await user.click(addColumn);
-
-    const modalTitle = screen.getByText("Create a new list");
-
-    expect(modalTitle).toBeInTheDocument();
-  });
-
-  test("it opens the delete board modal", async () => {
-    const user = userEvent.setup();
-    render(<Board />, { wrapper: Wrapper });
-
-    const deleteButton = screen.getByText("Delete Board");
+    const deleteButton = screen.getByTestId("deletecolumn");
+    const column = screen.getByText("board title");
     await user.click(deleteButton);
 
-    const modalTitle = screen.getByText(
+    await waitFor(() => expect(column).not.toBeInTheDocument());
+  });
+  test("it adds a new column", async () => {
+    const user = userEvent.setup();
+    const columnTitle = "A new column title";
+
+    setupNock()
+      .post("/rest/v1/board_column")
+      .reply(200, [
+        {
+          id: 2,
+          title: "another",
+          index: 1,
+        },
+      ])
+      .post("/rest/v1/board_column?select=*")
+      .reply(200, [
+        {
+          id: 2,
+          title: "another",
+          index: 1,
+        },
+      ]);
+
+    setupBoard();
+
+    await waitFor(() => expect(screen.getByText("Board")).toBeInTheDocument());
+
+    const addColumnButton = screen.getByTestId("addcolumn");
+    await user.click(addColumnButton);
+
+    expect(screen.getByText("Create a new list")).toBeInTheDocument();
+    const textArea = screen.getByTestId("columntitle");
+    await user.type(textArea, columnTitle);
+    const addButton = screen.getByText("Add new list");
+    await user.click(addButton);
+
+    await waitFor(() =>
+      expect(screen.getByText(columnTitle)).toBeInTheDocument()
+    );
+  });
+
+  test("it shows a modal if user clicks on the delete board button", async () => {
+    const user = userEvent.setup();
+
+    setupNock()
+      .delete("/rest/v1/board?id=eq.1")
+      .reply(200)
+      .get("/rest/v1/task?select=*&board_id=eq.2&order=index.asc")
+      .reply(200, []);
+
+    setupBoard();
+
+    await waitFor(() => expect(screen.getByText("Board")).toBeInTheDocument());
+
+    const openModal = screen.getByTestId("opendeletemodal");
+    await user.click(openModal);
+
+    const modal = screen.getByText(
       "Are you sure you want to delete this board?"
     );
 
-    expect(modalTitle).toBeInTheDocument();
+    await waitFor(() => expect(modal).toBeInTheDocument());
+  });
+
+  test("it deletes the board", async () => {
+    const user = userEvent.setup();
+
+    setupNock()
+      .delete("/rest/v1/board?id=eq.1")
+      .reply(200)
+      .get("/rest/v1/task?select=*&board_id=eq.2&order=index.asc")
+      .reply(200, []);
+
+    setupBoard();
+
+    await waitFor(() => expect(screen.getByText("Board")).toBeInTheDocument());
+
+    const modalButton = screen.getByTestId("opendeletemodal");
+    await user.click(modalButton);
+
+    screen.getByText("Are you sure you want to delete this board?");
+
+    const deleteButton = screen.getByText("Delete");
+
+    await user.click(deleteButton);
+
+    await waitFor(() => expect(mockedUseNavigate).toHaveBeenCalled());
   });
 });
