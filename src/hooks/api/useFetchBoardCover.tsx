@@ -27,7 +27,7 @@ export const useFetchBoardCovers = (boards: Board[] | undefined) => {
         throw new Error("client is not available");
       }
     },
-    [supabaseClient, boards]
+    [supabaseClient]
   );
 
   const query = useQuery({

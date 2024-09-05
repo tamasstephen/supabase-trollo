@@ -38,9 +38,10 @@ export const useDeleteItem = (id?: number | undefined) => {
         queryClient.invalidateQueries({ queryKey: [`board_columns/${id}`] });
         queryClient.invalidateQueries({ queryKey: [`tasks/${id}`] });
       } else if (variables.tableName === TableNames.COLUMN && id) {
-        await queryClient.setQueryData(
-          [`board_columns/${id}`],
-          (oldData: BoardColumnType[]) => {
+        queryClient.setQueriesData(
+          { queryKey: [`board_columns/${id}`] },
+          (oldData: BoardColumnType[] | undefined) => {
+            if (!oldData) return;
             const oldCopy = structuredClone(oldData);
             const result = oldCopy.filter(
               (container) => container.id !== variables.itemId

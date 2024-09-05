@@ -31,11 +31,11 @@ export const useFetch = <T extends DbObject>(
       }
       return data as T[];
     },
-    [supabaseClient, queryKey]
+    [supabaseClient]
   );
 
   const query = useQuery({
-    queryKey: [queryKey],
+    queryKey: [queryKey, enableQueryFilter, tableName, currentQueryParams],
     queryFn: () => fetchData(tableName, enableQueryFilter, currentQueryParams),
   });
 

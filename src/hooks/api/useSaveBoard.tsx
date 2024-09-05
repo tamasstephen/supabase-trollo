@@ -1,7 +1,6 @@
 import { useAuthContext } from "..";
-import { Board, BoardPayload, BoardInputTypes } from "@/types";
+import { Board, BoardPayload, BoardInputTypes, SavePayload } from "@/types";
 import { SupabaseClient } from "@supabase/supabase-js";
-import { SavePayload } from "@/types";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { TableNames } from "@/constants";
 

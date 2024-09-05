@@ -7,6 +7,7 @@ import {
   BoardColumnType,
   UpdateBoardItemsArgs,
   ColumnMovePayload,
+  Board as BoardType,
 } from "@/types";
 import { useNavigate, useParams } from "react-router-dom";
 import {
@@ -29,7 +30,6 @@ import {
   AddBoardColumn,
   DeleteBoard,
 } from "./components";
-import { Board as BoardType } from "@/types";
 import { sanitizeDraggableId } from "@/utils";
 import { useUpdateColumnMove } from "@/hooks/api/useUpdateColumnMove";
 

@@ -44,7 +44,7 @@ export const useFetchTasksWithContainers = (
     return result.sort(
       (firstCont, secondCont) => firstCont.index - secondCont.index
     );
-  }, [containers, boardId]);
+  }, [containers, supabaseClient]);
 
   const query = useQuery({
     queryKey: [`tasks/${boardId}`],

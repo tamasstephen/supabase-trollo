@@ -1,8 +1,4 @@
-import {
-  BoardColumnType,
-  ColumnMovePayload,
-  DraggableBoardContainer,
-} from "@/types";
+import { ColumnMovePayload, DraggableBoardContainer } from "@/types";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { useAuthContext } from "../useAuthContext";
 import { BoardPrefixes } from "@/constants";
@@ -17,7 +13,7 @@ export const useUpdateColumnMove = (boardId: number) => {
     }
     await Promise.all(
       payload.map(async (currentPayload) => {
-        const { id, index, title, ...rest } = currentPayload;
+        const { id, index, title } = currentPayload;
 
         const { error: updateError } = await supabaseClient
           .from(tableName)
