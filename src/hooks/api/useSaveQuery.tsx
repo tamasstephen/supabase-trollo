@@ -3,18 +3,19 @@ import {
   DbObject,
   DraggableBoardContainer,
   SaveQueryProps,
+  BoardColumnType,
 } from "@/types";
 import { useRef, useState } from "react";
 import { useAuthContext } from "../useAuthContext";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
-import { TableNames } from "@/constants";
+import { BoardPrefixes, TableNames } from "@/constants";
 import { reArrangeTaskColumns } from "@/utils";
 
 export const useSaveQuery = (boardId: number | undefined) => {
   const queryClient = useQueryClient();
   const { supabaseClient } = useAuthContext();
   const [key, setKey] = useState<TrolloQueryKey>();
-  const updatedId = useRef(-1);
+  const newItemId = useRef(-1);
 
   const saveToDb = async <T extends DbObject>({
     payload,
@@ -37,7 +38,7 @@ export const useSaveQuery = (boardId: number | undefined) => {
     if (!response || response.error) {
       throw new Error(response.error.message);
     }
-    updatedId.current = response.data[0].id;
+    newItemId.current = response.data[0].id;
     return response.data[0] as T;
   };
 
@@ -47,22 +48,38 @@ export const useSaveQuery = (boardId: number | undefined) => {
     },
     onSuccess: async (_, variables) => {
       if (key?.split("/")[0] === "board_columns" && boardId) {
-        await queryClient.invalidateQueries({
-          queryKey: [`board_columns/${boardId}`],
-          refetchType: "active",
-        });
-        await queryClient.refetchQueries({
-          queryKey: [`board_columns/${boardId}`],
-        });
-        await queryClient.invalidateQueries({
-          queryKey: [`tasks/${boardId}`],
-          refetchType: "active",
-        });
+        queryClient.setQueriesData(
+          { queryKey: [`board_columns/${boardId}`] },
+          (oldData: BoardColumnType[] | undefined) => {
+            if (!oldData || !("index" in variables.payload)) return;
+            const oldCopy = structuredClone(oldData);
+            oldCopy.push({
+              ...variables.payload,
+              id: newItemId.current,
+              index: variables.payload.index,
+            });
+            return oldCopy;
+          }
+        );
+        queryClient.setQueryData(
+          [`tasks/${boardId}`],
+          (oldData: DraggableBoardContainer[]) => {
+            if (!oldData || !("index" in variables.payload)) return oldData;
+            const oldCopy = structuredClone(oldData);
+            oldCopy.push({
+              ...variables.payload,
+              id: `${BoardPrefixes.COLUMN}${newItemId.current}`,
+              index: variables.payload.index,
+              items: [],
+            });
+            return oldCopy;
+          }
+        );
       } else if (key?.split("/")[0] === "tasks" && boardId) {
         await queryClient.setQueryData(
           [`tasks/${boardId}`],
           (oldData: DraggableBoardContainer[]) =>
-            reArrangeTaskColumns(oldData, updatedId, variables)
+            reArrangeTaskColumns(oldData, newItemId, variables)
         );
       }
     },
