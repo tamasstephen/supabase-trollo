@@ -7,3 +7,4 @@
 - Supabase (backend and authentication)
 - Jest/React testing library
 - React Router
+- React Query

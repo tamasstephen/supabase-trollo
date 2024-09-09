@@ -1,23 +1,28 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { UniqueIdentifier } from "@dnd-kit/core";
 import styles from "@/styles/Board.module.scss";
 import { Portal, Error, Loading } from "@/components";
-import { DraggableBoardContainer, BoardColumnType, Task } from "@/types";
+import {
+  DraggableBoardContainer,
+  BoardColumnType,
+  UpdateBoardItemsArgs,
+  ColumnMovePayload,
+  Board as BoardType,
+} from "@/types";
 import { useNavigate, useParams } from "react-router-dom";
 import {
-  useFetchBoardColumns,
   useUpdate,
-  useSave,
-  useFetchBoard,
+  useSaveQuery,
+  useFetchTasksWithContainers,
+  useFetch,
+  useDeleteItem,
 } from "@/hooks";
 import { BoardPrefixes, TableNames } from "@/constants";
 import {
   findActiveBoardListCard,
-  sanitizeDraggableId,
   findActiveContainers,
   updateContainerTasks,
 } from "./helpers";
-import { useDelete } from "@/hooks/api/useDelete";
 import { InputTypes, TaskFormElement } from "@/types/FormTypes";
 import {
   BoardHeader,
@@ -25,6 +30,8 @@ import {
   AddBoardColumn,
   DeleteBoard,
 } from "./components";
+import { sanitizeDraggableId } from "@/utils";
+import { useUpdateColumnMove } from "@/hooks/api/useUpdateColumnMove";
 
 enum ModalContent {
   ADD_LIST,
@@ -37,24 +44,53 @@ export const Board = () => {
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [modalContent, setModalContent] = useState(ModalContent.ADD_LIST);
   const { id } = useParams();
+  const boardId = parseInt(id as string);
   const [boardColumns, setBoardColumn] = useState<DraggableBoardContainer[]>(
     []
   );
   const {
-    error: boardError,
-    loading: boardLoading,
     data: boardData,
-  } = useFetchBoard(id);
-  const { error, loading } = useFetchBoardColumns(
-    parseInt(id as string),
-    setBoardColumn
+    isPending: boardTitlePending,
+    isError: isBoardTitleError,
+  } = useFetch<BoardType>(
+    `board/${parseInt(id as string)}`,
+    TableNames.BOARD,
+    true,
+    {
+      filterBy: "id",
+      value: boardId,
+    }
   );
-  const { error: updateError, updateItem } = useUpdate();
-  const { error: deleteError, deleteItem } = useDelete();
-  const { error: saveError, saveToDb } = useSave();
+  const {
+    data: containers,
+    isError: containerError,
+    isPending: containerPending,
+  } = useFetch<BoardColumnType>(
+    `board_columns/${boardId}`,
+    TableNames.COLUMN,
+    true,
+    {
+      filterBy: "board_id",
+      value: boardId,
+    }
+  );
+  const {
+    data: boardContainers,
+    isError: taskError,
+    isPending: taskPending,
+  } = useFetchTasksWithContainers(boardId, containers);
+  const deleteMutation = useDeleteItem(boardId);
+  const saveMutation = useSaveQuery(boardId);
+  const updateMutation = useUpdate(boardId);
+  const updateColumnMoveMutation = useUpdateColumnMove(boardId);
 
-  const hasToShowError = error || saveError;
-  updateError || deleteError || boardError;
+  const hasToShowError =
+    containerError ||
+    taskError ||
+    isBoardTitleError ||
+    updateMutation.error ||
+    deleteMutation.error ||
+    saveMutation.error;
 
   const activeContainer = findActiveContainers(
     activeId as string,
@@ -62,59 +98,35 @@ export const Board = () => {
   );
   const activeCard = findActiveBoardListCard(activeId as string, boardColumns);
 
-  const addNewTask = async (
+  const addNewTask = (
     e: React.FormEvent<TaskFormElement>,
     columnId: UniqueIdentifier
   ) => {
     e.preventDefault();
     const boardTitle = e.currentTarget.elements.taskTitle.value;
-    const columnToEdit = boardColumns.find((col) => col.id === columnId);
+    const columnToEdit = boardContainers?.find((col) => col.id === columnId);
     if (!columnToEdit) return;
-    const task = await saveToDb<Task>(
-      {
+    const realColumnId = sanitizeDraggableId(columnId as string);
+    saveMutation.mutate({
+      payload: {
         index: columnToEdit.items.length,
         title: boardTitle,
-        board_id: sanitizeDraggableId(columnId as string),
+        board_id: realColumnId,
       },
-      TableNames.TASK
-    );
-    if (!task) return;
-    const newId = `${BoardPrefixes.ITEM}${task.id}`;
-    columnToEdit.items.push({ ...task, id: newId });
-
-    setBoardColumn((prevColumns) => {
-      const newColumns = prevColumns.map((column) => {
-        if (column.id === columnId) {
-          column.items = columnToEdit.items;
-        }
-        return column;
-      });
-      return newColumns;
+      tableName: TableNames.TASK,
     });
   };
 
-  const addBoardColumn = async (data: Pick<InputTypes, "boardColumnTitle">) => {
+  const addBoardColumn = (data: Pick<InputTypes, "boardColumnTitle">) => {
     const boardTitle = data.boardColumnTitle as string;
-    const newColumn = await saveToDb<BoardColumnType>(
-      {
+    saveMutation.mutate({
+      payload: {
         board_id: parseInt(id as string),
         title: boardTitle,
-        index: boardColumns.length,
+        index: boardContainers?.length,
       },
-      TableNames.COLUMN
-    );
-    if (!newColumn) {
-      return;
-    }
-    setBoardColumn([
-      ...boardColumns,
-      {
-        id: `${newColumn.id}-container`,
-        title: newColumn.title,
-        items: [],
-        index: boardColumns.length + 1,
-      },
-    ]);
+      tableName: TableNames.COLUMN,
+    });
   };
 
   const deleteTask = (taskId: string) => {
@@ -124,15 +136,17 @@ export const Board = () => {
     if (!columnToUpdate) {
       return;
     }
-    deleteItem(
-      sanitizeDraggableId(taskId, BoardPrefixes.ITEM),
-      TableNames.TASK
-    );
+    deleteMutation.mutate({
+      itemId: sanitizeDraggableId(taskId, BoardPrefixes.ITEM),
+      tableName: TableNames.TASK,
+    });
     setBoardColumn((prevColumns) => {
       const newColumns = prevColumns.map((column) => {
         if (column.id === columnToUpdate.id) {
           column.items = column.items.filter((item) => item.id !== taskId);
-          updateContainerTasks(column, updateItem);
+          updateContainerTasks(column, (args: UpdateBoardItemsArgs) =>
+            updateMutation.mutate(args)
+          );
         }
         return column;
       });
@@ -141,19 +155,22 @@ export const Board = () => {
   };
 
   const deleteBoardContainer = async (containerId: string) => {
-    await deleteItem(sanitizeDraggableId(containerId), TableNames.COLUMN);
+    await deleteMutation.mutateAsync({
+      itemId: sanitizeDraggableId(containerId),
+      tableName: TableNames.COLUMN,
+    });
     setBoardColumn((prevColumns) => {
       const newColumns = prevColumns
         .filter((currentContainer) => containerId !== currentContainer.id)
         .map((container, idx) => {
           container.index = idx;
-          updateItem(
-            {
+          updateMutation.mutate({
+            payload: {
               id: sanitizeDraggableId(container.id),
               index: container.index,
             },
-            TableNames.COLUMN
-          );
+            tableName: TableNames.COLUMN,
+          });
           return container;
         });
       return newColumns;
@@ -161,15 +178,24 @@ export const Board = () => {
   };
 
   const deleteBoard = () => {
-    deleteItem(parseInt(id as string), TableNames.BOARD);
+    deleteMutation.mutate({
+      itemId: parseInt(id as string),
+      tableName: TableNames.BOARD,
+    });
     navigate("/");
   };
+
+  useEffect(() => {
+    if (boardContainers) {
+      setBoardColumn(boardContainers);
+    }
+  }, [boardContainers, setBoardColumn]);
 
   if (hasToShowError) {
     return <Error />;
   }
 
-  if (loading || boardLoading) {
+  if (boardTitlePending || containerPending || taskPending) {
     return <Loading />;
   }
 
@@ -180,7 +206,7 @@ export const Board = () => {
           setModalContent(ModalContent.DELETE_BOARD);
           setIsModalOpen(true);
         }}
-        boardData={boardData}
+        boardData={boardData[0]}
         setIsModalOpen={() => {
           setModalContent(ModalContent.ADD_LIST);
           setIsModalOpen(true);
@@ -203,7 +229,12 @@ export const Board = () => {
           boardColumns={boardColumns}
           setBoardColumn={setBoardColumn}
           setActiveId={setActiveId}
-          updateItem={updateItem}
+          updateItem={(args: UpdateBoardItemsArgs) =>
+            updateMutation.mutate(args)
+          }
+          updateColumnMove={(args: ColumnMovePayload) =>
+            updateColumnMoveMutation.mutate(args)
+          }
           addNewTask={addNewTask}
           deleteBoardContainer={deleteBoardContainer}
           deleteTask={deleteTask}

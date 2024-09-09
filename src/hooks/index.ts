@@ -3,9 +3,9 @@ export { useAuth } from "./useAuth";
 export {
   useSaveBoard,
   useUpdate,
-  useFetchBoards,
-  useFetchBoardColumns,
-  useSave,
-  useFetchBoard,
-  useDelete,
+  useDeleteItem,
+  useSaveQuery,
+  useFetch,
+  useFetchTasksWithContainers,
+  useFetchBoardCovers,
 } from "./api";

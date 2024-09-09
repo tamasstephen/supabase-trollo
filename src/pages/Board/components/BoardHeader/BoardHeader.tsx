@@ -26,6 +26,7 @@ export const BoardHeader = ({
           type="button"
           isDanger={true}
           isSmall
+          testId="opendeletemodal"
         >
           Delete Board
         </Button>
@@ -36,6 +37,7 @@ export const BoardHeader = ({
           }}
           type="button"
           isSmall
+          testId="addcolumn"
         >
           <Plus />
           Add list

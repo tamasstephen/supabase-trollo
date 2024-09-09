@@ -20,6 +20,7 @@ export const DeleteBoard = ({ onCancel, onDelete }: DeleteBoardProps) => {
           onClick={onDelete}
           isDanger={true}
           style={ButtonStyle.DASHED}
+          testId="deleteboard"
         >
           Delete
         </Button>

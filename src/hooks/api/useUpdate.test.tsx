@@ -3,9 +3,31 @@ import * as hooks from "@/hooks/useAuthContext";
 import { act, renderHook, waitFor } from "@testing-library/react";
 import { useUpdate } from "./useUpdate";
 import { TableNames } from "@/constants";
+import { PropsWithChildren } from "react";
+import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
+import { AuthContextProvider } from "@/components";
+
+interface WrapperProps extends PropsWithChildren {}
+
+const queryClient = new QueryClient({
+  defaultOptions: {
+    queries: {
+      // ✅ turns retries off
+      retry: false,
+    },
+  },
+});
+const wrapper = ({ children }: WrapperProps) => (
+  <QueryClientProvider client={queryClient}>
+    <AuthContextProvider>
+      <div id="portal"></div>
+      {children}
+    </AuthContextProvider>
+  </QueryClientProvider>
+);
 
 const mockUseAuthContext = jest.spyOn(hooks, "useAuthContext");
-const mockBoardData = { id: 1, title: "title" };
+const mockBoardData = { id: 1, title: "title", board_id: 1, index: 0 };
 
 const setupMockUseAuthContext = (
   boardError: boolean = false,
@@ -35,37 +57,52 @@ const setupMockUseAuthContext = (
 };
 
 describe("useUpdate", () => {
-  test("it updates the selected item", async () => {
+  test("it updates the selected item", () => {
     setupMockUseAuthContext();
-    const { result } = renderHook(() => useUpdate());
+    const { result } = renderHook(() => useUpdate(), { wrapper });
 
+    act(() =>
+      result.current.mutate({
+        payload: mockBoardData,
+        tableName: TableNames.BOARD,
+      })
+    );
     waitFor(() => {
-      expect(result.current.loading).toBe(true);
+      expect(result.current.isPending).toBe(true);
       expect(result.current.error).toBe(false);
-      expect(result.current.loading).toBe(false);
+      expect(result.current.isPending).toBe(false);
     });
-    await act(() => result.current.updateItem(mockBoardData, TableNames.BOARD));
   });
 
-  test("it sets error to true if client is not available", async () => {
+  test("it sets error to true if client is not available", () => {
     setupMockUseAuthContext(false, false);
-    const { result } = renderHook(() => useUpdate());
+    const { result } = renderHook(() => useUpdate(), { wrapper });
 
     waitFor(() => {
       expect(result.current.error).toBe(true);
     });
 
-    await act(() => result.current.updateItem(mockBoardData, TableNames.BOARD));
+    act(() =>
+      result.current.mutate({
+        payload: mockBoardData,
+        tableName: TableNames.BOARD,
+      })
+    );
   });
 
-  test("it sets error to true if the update returns with an error", async () => {
+  test("it sets error to true if the update returns with an error", () => {
     setupMockUseAuthContext(true, true);
-    const { result } = renderHook(() => useUpdate());
+    const { result } = renderHook(() => useUpdate(), { wrapper });
 
     waitFor(() => {
       expect(result.current.error).toBe(true);
     });
 
-    await act(() => result.current.updateItem(mockBoardData, TableNames.BOARD));
+    act(() =>
+      result.current.mutate({
+        payload: mockBoardData,
+        tableName: TableNames.BOARD,
+      })
+    );
   });
 });

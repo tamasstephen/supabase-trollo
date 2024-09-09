@@ -1,20 +1,23 @@
-import { BoardPrefixes, TableNames } from "@/constants/constants";
-import { DraggableBoardContainer, UpdateColumnProps } from "@/types";
-import { UpdateTaskProps } from "@/types/Board";
+import { TableNames } from "@/constants/constants";
+import { DraggableBoardContainer } from "@/types";
+import {
+  BoardColumnType,
+  ColumnMovePayload,
+  UpdateBoardItemsArgs,
+} from "@/types/Board";
 import { DragEndEvent, DragStartEvent, UniqueIdentifier } from "@dnd-kit/core";
 import { arrayMove } from "@dnd-kit/sortable";
 import { Dispatch } from "react";
 import { updateContainerTasks } from "./helpers";
+import { sanitizeDraggableId } from "@/utils";
 
 export const handleDragEnd = (
   event: DragEndEvent,
   boardColumns: DraggableBoardContainer[],
   setBoardColumn: Dispatch<React.SetStateAction<DraggableBoardContainer[]>>,
   setActiveId: React.Dispatch<React.SetStateAction<UniqueIdentifier | null>>,
-  updateItem: (
-    payload: UpdateColumnProps | UpdateTaskProps,
-    tableName: TableNames
-  ) => void
+  updateItem: ({ payload, tableName }: UpdateBoardItemsArgs) => void,
+  updateColumnMove: (payload: ColumnMovePayload) => void
 ) => {
   const { active, over } = event;
 
@@ -24,53 +27,42 @@ export const handleDragEnd = (
   const overContainer = over.data.current?.sortable.containerId;
   const hoverTargetId = over.id;
   const initialItemId = active.id as string;
-  if (
-    (over.id as string).includes("container") &&
-    (active.id as string).includes("container")
-  ) {
+
+  if ((active.id as string).includes("container")) {
     // Move containers
+    const overId = (over.id as string).includes("container")
+      ? over.id
+      : over.data.current?.sortable.containerId;
     const activeContainerIndex = boardColumns.findIndex(
       (column) => column.id === active.id
     );
     const overContainerIndex = boardColumns.findIndex(
-      (column) => column.id === over.id
+      (column) => column.id === overId
     );
 
     if (activeContainerIndex === -1 || overContainerIndex === -1) {
       return;
     }
 
-    const currentActiveContainerId = parseInt(
-      boardColumns[activeContainerIndex].id.replace(BoardPrefixes.COLUMN, "")
-    );
-    const currentOverContainerId = parseInt(
-      boardColumns[overContainerIndex].id.replace(BoardPrefixes.COLUMN, "")
-    );
-
-    //update index of active container with the index of over container
-    updateItem(
-      {
-        index: overContainerIndex,
-        id: currentActiveContainerId,
-      },
-      TableNames.COLUMN
-    );
-
-    //update index of active container with the index of over container
-    updateItem(
-      {
-        index: activeContainerIndex,
-        id: currentOverContainerId,
-      },
-      TableNames.COLUMN
-    );
-
-    const newItems = [...boardColumns];
+    const payLoadContainers = structuredClone(boardColumns);
     const newArray = arrayMove(
-      newItems,
+      payLoadContainers,
       activeContainerIndex,
       overContainerIndex
     );
+
+    const payload = newArray.map((container, index) => {
+      container.index = index;
+      const newId = sanitizeDraggableId(container.id);
+      const newContainer = { ...container, id: newId } as BoardColumnType;
+      newContainer.id = newId;
+      return newContainer;
+    }) as BoardColumnType[];
+
+    updateColumnMove({
+      payload: payload,
+      tableName: TableNames.COLUMN,
+    });
 
     setBoardColumn(newArray);
   }

@@ -81,7 +81,7 @@ describe("Navbar", () => {
     expect(mockSetToSignedOut).toHaveBeenCalled();
   });
 
-  test("Navbar renders with Sign Out button if initial state is signed in", async () => {
+  test("Navbar renders with Sign Out button if initial state is signed in", () => {
     setUpMockedAuthContext(true, { session: "text" });
     render(
       <MemoryRouter>

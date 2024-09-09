@@ -1,20 +1,12 @@
 import { useAuthContext } from "..";
-import { Board, BoardPayload, BoardInputTypes } from "@/types";
+import { Board, BoardPayload, BoardInputTypes, SavePayload } from "@/types";
 import { SupabaseClient } from "@supabase/supabase-js";
-import { useEffect, useState } from "react";
-import { useSave } from "./useSave";
+import { useMutation, useQueryClient } from "@tanstack/react-query";
+import { TableNames } from "@/constants";
 
 export const useSaveBoard = () => {
-  const [loading, setLoading] = useState(false);
-  const [error, setError] = useState(false);
+  const queryClient = useQueryClient();
   const { supabaseClient } = useAuthContext();
-  const { error: saveColumnError, saveToDb } = useSave();
-
-  useEffect(() => {
-    if (saveColumnError) {
-      setError(saveColumnError);
-    }
-  }, [saveColumnError]);
 
   const saveBoardBackGround = async (
     boardCover: File,
@@ -29,44 +21,46 @@ export const useSaveBoard = () => {
           upsert: false,
         });
       if (error) {
-        setError(true);
-        return error;
+        throw new Error(error.message);
       }
       payload.background = data.path;
     } catch {
-      setError(true);
+      throw new Error("Unable to save file");
     }
   };
 
-  const saveBoardData = async (payload: BoardPayload) => {
-    const response = saveToDb<Board>(payload, "boards");
+  const saveToDb = async (
+    payload: SavePayload,
+    supabaseClient: SupabaseClient
+  ) => {
+    const response = await supabaseClient
+      .from(TableNames.BOARD)
+      .insert(payload)
+      .select();
     return response;
   };
 
   const saveBoard = async ({ boardName, boardCover }: BoardInputTypes) => {
     if (!supabaseClient) {
-      setError(true);
-      return;
+      throw new Error("client is not available");
     }
-    setLoading(true);
     const payload: BoardPayload = { title: "" };
     payload.title = boardName;
     if (boardCover && boardCover.length) {
       const coverImage = boardCover[0];
-      const isError = await saveBoardBackGround(
-        coverImage,
-        supabaseClient,
-        payload
-      );
-      if (isError) {
-        setLoading(false);
-        return;
-      }
+      await saveBoardBackGround(coverImage, supabaseClient, payload);
     }
-    const res = await saveBoardData(payload);
-    setLoading(false);
-    return res;
+    const { data, error } = await saveToDb(payload, supabaseClient);
+    if (error) {
+      throw new Error(error.message);
+    }
+    return data[0] as Board;
   };
 
-  return { loading, error, saveBoard };
+  return useMutation({
+    mutationFn: (payload: BoardInputTypes) => saveBoard(payload),
+    onSuccess: async () => {
+      await queryClient.invalidateQueries({ queryKey: ["board"] });
+    },
+  });
 };

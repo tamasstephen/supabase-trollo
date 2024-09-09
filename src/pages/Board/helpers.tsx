@@ -1,14 +1,6 @@
 import { BoardPrefixes, TableNames } from "@/constants/constants";
-import {
-  DraggableBoardContainer,
-  UpdateColumnProps,
-  UpdateTaskProps,
-} from "@/types";
-
-export const sanitizeDraggableId = (
-  containerId: string,
-  prefix?: BoardPrefixes
-) => parseInt(containerId.replace(prefix ? prefix : BoardPrefixes.COLUMN, ""));
+import { DraggableBoardContainer, UpdateBoardItemsArgs } from "@/types";
+import { sanitizeDraggableId } from "@/utils";
 
 export const findActiveBoardListCard = (
   id: string,
@@ -32,10 +24,7 @@ export const findActiveContainers = (
 
 export const updateContainerTasks = (
   column: DraggableBoardContainer,
-  updateItem: (
-    payload: UpdateColumnProps | UpdateTaskProps,
-    tableName: TableNames
-  ) => void
+  updateItem: ({ payload, tableName }: UpdateBoardItemsArgs) => void
 ) => {
   for (const idx in column.items) {
     const realId = sanitizeDraggableId(
@@ -43,9 +32,9 @@ export const updateContainerTasks = (
       BoardPrefixes.ITEM
     );
     const containerId = sanitizeDraggableId(column.id, BoardPrefixes.COLUMN);
-    updateItem(
-      { id: realId, index: parseInt(idx), board_id: containerId },
-      TableNames.TASK
-    );
+    updateItem({
+      payload: { id: realId, index: parseInt(idx), board_id: containerId },
+      tableName: TableNames.TASK,
+    });
   }
 };

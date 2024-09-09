@@ -1,5 +1,4 @@
 import { SyntheticEvent, useState } from "react";
-import { useFetchBoards } from "@/hooks/";
 import styles from "@/styles/Dashboard.module.scss";
 import {
   Error,
@@ -9,11 +8,23 @@ import {
   Portal,
 } from "@/components/";
 import { useNavigate } from "react-router-dom";
+import { useFetch, useFetchBoardCovers } from "@/hooks";
+import { TableNames } from "@/constants";
 
 export const Dashboard = () => {
-  const [isPortalOpen, setIsPortalOpen] = useState(false);
-  const { error, loading, data: boards } = useFetchBoards();
   const navigate = useNavigate();
+  const [isPortalOpen, setIsPortalOpen] = useState(false);
+  const { data, isError, isPending } = useFetch(
+    "board",
+    TableNames.BOARD,
+    false
+  );
+
+  const {
+    data: boards,
+    isError: coverError,
+    isPending: coverPending,
+  } = useFetchBoardCovers(data);
 
   const closeModal = () => setIsPortalOpen(false);
 
@@ -28,11 +39,11 @@ export const Dashboard = () => {
     navigate(`/board/${id}`);
   };
 
-  if (error) {
+  if (isError || coverError) {
     return <Error />;
   }
 
-  if (loading) {
+  if (isPending || coverPending) {
     return <Loading />;
   }
 

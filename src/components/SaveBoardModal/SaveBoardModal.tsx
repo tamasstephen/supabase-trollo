@@ -10,13 +10,15 @@ import { Input } from "../Input";
 import { Button } from "../Button";
 import { useNavigate } from "react-router-dom";
 import { ButtonStyle } from "@/constants";
+import { useState } from "react";
 
 interface SaveBoardModalProps {
   closeModal: () => void;
 }
 
 export const SaveBoardModal = ({ closeModal }: SaveBoardModalProps) => {
-  const { loading, error, saveBoard } = useSaveBoard();
+  const [error, setError] = useState(false);
+  const mutation = useSaveBoard();
   const {
     handleSubmit,
     register,
@@ -24,7 +26,7 @@ export const SaveBoardModal = ({ closeModal }: SaveBoardModalProps) => {
   } = useForm<InputTypes>();
   const navigate = useNavigate();
 
-  if (loading) {
+  if (mutation.isPending) {
     return <SaveLoading />;
   }
 
@@ -45,9 +47,11 @@ export const SaveBoardModal = ({ closeModal }: SaveBoardModalProps) => {
       <h3>Create a board</h3>
       <form
         onSubmit={handleSubmit(async (data) => {
-          const res = await saveBoard(data);
-          if (!error && res) {
-            navigate(`/board/${res.id}`);
+          try {
+            const result = await mutation.mutateAsync(data);
+            navigate(`board/${result.id}`);
+          } catch {
+            setError(true);
           }
         })}
       >

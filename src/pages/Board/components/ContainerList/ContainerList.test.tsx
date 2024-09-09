@@ -9,21 +9,21 @@ const mockBoardColumns: DraggableBoardContainer[] = [
     id: `${BoardPrefixes.COLUMN}-1`,
     title: "board title",
     items: [
-      { id: `${BoardPrefixes.ITEM}-3`, title: "title" },
-      { id: `${BoardPrefixes.ITEM}-4`, title: "title-card2" },
+      { id: `${BoardPrefixes.ITEM}-3`, title: "title", index: 0 },
+      { id: `${BoardPrefixes.ITEM}-4`, title: "title-card2", index: 1 },
     ],
     index: 1,
   },
   {
     id: `${BoardPrefixes.COLUMN}-2`,
     title: "board title2",
-    items: [{ id: `${BoardPrefixes.ITEM}-5`, title: "title" }],
+    items: [{ id: `${BoardPrefixes.ITEM}-5`, title: "title", index: 0 }],
     index: 2,
   },
   {
     id: `${BoardPrefixes.COLUMN}-3`,
     title: "board title3",
-    items: [{ id: `${BoardPrefixes.ITEM}-6`, title: "title" }],
+    items: [{ id: `${BoardPrefixes.ITEM}-6`, title: "title", index: 0 }],
     index: 2,
   },
 ];
@@ -37,6 +37,7 @@ const mockDeleteTask = jest.fn();
 const mockActiveId: UniqueIdentifier = "1";
 const mockActiveContainer = mockBoardColumns[0];
 const mockActiveCard = mockBoardColumns[0].items[0];
+const mockContainerMove = jest.fn();
 
 const setupTest = () =>
   render(
@@ -51,6 +52,7 @@ const setupTest = () =>
       activeId={mockActiveId}
       activeContainer={mockActiveContainer}
       activeCard={mockActiveCard}
+      updateColumnMove={mockContainerMove}
     />
   );
 

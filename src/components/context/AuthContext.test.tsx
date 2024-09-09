@@ -84,7 +84,7 @@ describe("AuthContext", () => {
     expect(mockSetToSignedOut).toHaveBeenCalled();
   });
 
-  test("setToSignedOut is called", async () => {
+  test("setToSignedOut is called", () => {
     mockUseAuth.mockReturnValue({
       isSignedIn: false,
       setToSignedIn: mockSetToSignedIn,
