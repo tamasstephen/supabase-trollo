@@ -74,7 +74,6 @@ describe("Board", () => {
     nock.cleanAll();
     nock.restore();
     nock.activate();
-    //global.structuredClone.mockRestore();
   });
 
   test("board renders", async () => {

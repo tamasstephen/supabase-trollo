@@ -13,9 +13,12 @@ export const useFetchBoardCovers = (boards: Board[] | undefined) => {
         const result = structuredClone(boards);
         for (const board of result) {
           if (board.background) {
-            const { data } = await supabaseClient.storage
+            const { data, error } = await supabaseClient.storage
               .from("board_cover")
               .download(board.background);
+            if (error) {
+              throw new Error(error.message);
+            }
             const imageUrl = data ? URL.createObjectURL(data) : "";
             if (imageUrl) {
               board.imageUrl = imageUrl;
