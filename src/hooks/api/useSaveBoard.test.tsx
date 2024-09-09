@@ -3,10 +3,26 @@ import { renderHook, waitFor } from "@testing-library/react";
 import { act, PropsWithChildren } from "react";
 import nock from "nock";
 import { AuthContextProvider } from "@/components";
+import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 
 const supaBaseMockEndpoint = "https://www.url.com";
-const wrapper = ({ children }: PropsWithChildren) => (
-  <AuthContextProvider>{children}</AuthContextProvider>
+
+interface WrapperProps extends PropsWithChildren {}
+const queryClient = new QueryClient({
+  defaultOptions: {
+    queries: {
+      // ✅ turns retries off
+      retry: false,
+    },
+  },
+});
+const wrapper = ({ children }: WrapperProps) => (
+  <QueryClientProvider client={queryClient}>
+    <AuthContextProvider>
+      <div id="portal"></div>
+      {children}
+    </AuthContextProvider>
+  </QueryClientProvider>
 );
 
 const fileNames = ["foo.txt", "bar.txt"];
@@ -36,28 +52,20 @@ describe("useSaveBoard", () => {
     nock.activate();
   });
 
-  test("has loading state if the request is pending", async () => {
-    const {
-      result: {
-        current: { loading, saveBoard },
-      },
-    } = renderHook(() => useSaveBoard(), {
+  test("has loading state if the request is pending", () => {
+    const { result } = renderHook(() => useSaveBoard(), {
       wrapper,
     });
 
     nock(supaBaseMockEndpoint)
-      .persist()
       .post("/rest/v1/boards")
-      .reply(200, { data: "whatever" })
-      .post(`/storage/v1/object/board_cover/board_cover/${fileNames[0]}`)
       .reply(200, { data: "whatever" })
       .post("/rest/v1/boards?select=*")
       .reply(200, { data: "test" });
-
     act(() => {
-      saveBoard(mockData);
+      result.current.mutate(mockData);
 
-      waitFor(() => expect(loading).toBe(true));
+      waitFor(() => expect(result.current.isPending).toBe(true));
     });
   });
 
@@ -67,18 +75,14 @@ describe("useSaveBoard", () => {
     });
 
     nock(supaBaseMockEndpoint)
-      .persist()
       .post(`/storage/v1/object/board_cover/board_cover/${fileNames[0]}`)
       .reply(200, { data: "whatever" })
       .post("/rest/v1/boards")
-      .replyWithError({
-        message: "something awful happened",
-        code: "AWFUL_ERROR",
-      });
+      .reply(404, new Error("error"));
 
-    await waitFor(async () => await result.current.saveBoard(mockData));
+    await waitFor(() => result.current.mutate(mockData));
 
-    await waitFor(() => expect(result.current.error).toBe(true));
+    await waitFor(() => expect(result.current.error).toBeTruthy());
   });
 
   test("has no error and loading state after saving the boards", async () => {
@@ -87,18 +91,15 @@ describe("useSaveBoard", () => {
     });
 
     nock(supaBaseMockEndpoint)
-      .persist()
       .post(`/storage/v1/object/board_cover/board_cover/${fileNames[0]}`)
-      .reply(200, { data: "whatever" })
-      .post("/rest/v1/boards")
       .reply(200, { data: "whatever" })
       .post("/rest/v1/boards?select=*")
       .reply(200, { data: "test" });
 
-    await waitFor(async () => await result.current.saveBoard(mockData));
+    await waitFor(() => result.current.mutate(mockData));
 
-    await waitFor(() => expect(result.current.error).toBe(false));
-    await waitFor(() => expect(result.current.loading).toBe(false));
+    await waitFor(() => expect(result.current.error).toBe(null));
+    await waitFor(() => expect(result.current.isPending).toBe(false));
   });
 
   test("returns with error if file can not be saved", async () => {
@@ -107,16 +108,11 @@ describe("useSaveBoard", () => {
     });
 
     nock(supaBaseMockEndpoint)
-      .persist()
       .post(`/storage/v1/object/board_cover/board_cover/${fileNames[0]}`)
-      .replyWithError("ERROR")
-      .post("/rest/v1/boards")
-      .reply(200, { data: "whatever" })
-      .post("/rest/v1/boards?select=*")
-      .reply(200, { data: "test" });
+      .reply(404, new Error("erro"));
 
-    await waitFor(async () => await result.current.saveBoard(mockData));
+    await waitFor(() => result.current.mutate(mockData));
 
-    await waitFor(() => expect(result.current.error).toBe(true));
+    await waitFor(() => expect(result.current.error).toBeTruthy());
   });
 });

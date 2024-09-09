@@ -57,7 +57,7 @@ const setupMockUseAuthContext = (
 };
 
 describe("useUpdate", () => {
-  test("it updates the selected item", async () => {
+  test("it updates the selected item", () => {
     setupMockUseAuthContext();
     const { result } = renderHook(() => useUpdate(), { wrapper });
 
@@ -74,7 +74,7 @@ describe("useUpdate", () => {
     });
   });
 
-  test("it sets error to true if client is not available", async () => {
+  test("it sets error to true if client is not available", () => {
     setupMockUseAuthContext(false, false);
     const { result } = renderHook(() => useUpdate(), { wrapper });
 
@@ -90,7 +90,7 @@ describe("useUpdate", () => {
     );
   });
 
-  test("it sets error to true if the update returns with an error", async () => {
+  test("it sets error to true if the update returns with an error", () => {
     setupMockUseAuthContext(true, true);
     const { result } = renderHook(() => useUpdate(), { wrapper });
 
