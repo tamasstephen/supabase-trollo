@@ -17,5 +17,6 @@ module.exports = {
     ],
     "no-console": "warn",
     "no-duplicate-imports": "error",
+    "require-await": "error",
   },
 };
