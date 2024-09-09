@@ -10,12 +10,14 @@ import { Input } from "../Input";
 import { Button } from "../Button";
 import { useNavigate } from "react-router-dom";
 import { ButtonStyle } from "@/constants";
+import { useState } from "react";
 
 interface SaveBoardModalProps {
   closeModal: () => void;
 }
 
 export const SaveBoardModal = ({ closeModal }: SaveBoardModalProps) => {
+  const [error, setError] = useState(false);
   const mutation = useSaveBoard();
   const {
     handleSubmit,
@@ -28,7 +30,7 @@ export const SaveBoardModal = ({ closeModal }: SaveBoardModalProps) => {
     return <SaveLoading />;
   }
 
-  if (mutation.isError) {
+  if (error) {
     return <SaveError />;
   }
 
@@ -45,8 +47,12 @@ export const SaveBoardModal = ({ closeModal }: SaveBoardModalProps) => {
       <h3>Create a board</h3>
       <form
         onSubmit={handleSubmit(async (data) => {
-          const result = await mutation.mutateAsync(data);
-          navigate(`board/${result.id}`);
+          try {
+            const result = await mutation.mutateAsync(data);
+            navigate(`board/${result.id}`);
+          } catch {
+            setError(true);
+          }
         })}
       >
         <fieldset>

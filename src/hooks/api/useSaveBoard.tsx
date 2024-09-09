@@ -37,10 +37,7 @@ export const useSaveBoard = () => {
       .from(TableNames.BOARD)
       .insert(payload)
       .select();
-    if (!response || response.error) {
-      throw new Error(response.error.message);
-    }
-    return response.data[0] as Board;
+    return response;
   };
 
   const saveBoard = async ({ boardName, boardCover }: BoardInputTypes) => {
@@ -53,8 +50,11 @@ export const useSaveBoard = () => {
       const coverImage = boardCover[0];
       await saveBoardBackGround(coverImage, supabaseClient, payload);
     }
-    const res = await saveToDb(payload, supabaseClient);
-    return res;
+    const { data, error } = await saveToDb(payload, supabaseClient);
+    if (error) {
+      throw new Error(error.message);
+    }
+    return data[0] as Board;
   };
 
   return useMutation({
