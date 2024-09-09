@@ -31,7 +31,7 @@ export const useDeleteItem = (id?: number | undefined) => {
     mutationFn: (args: DeleteArgs) => {
       return deleteItem(args);
     },
-    onSuccess: async (_, variables) => {
+    onSuccess: (_, variables) => {
       if (variables.tableName === TableNames.BOARD) {
         queryClient.invalidateQueries({ queryKey: ["board"] });
       } else if (variables.tableName === TableNames.TASK && id) {

@@ -98,7 +98,7 @@ export const Board = () => {
   );
   const activeCard = findActiveBoardListCard(activeId as string, boardColumns);
 
-  const addNewTask = async (
+  const addNewTask = (
     e: React.FormEvent<TaskFormElement>,
     columnId: UniqueIdentifier
   ) => {
@@ -117,7 +117,7 @@ export const Board = () => {
     });
   };
 
-  const addBoardColumn = async (data: Pick<InputTypes, "boardColumnTitle">) => {
+  const addBoardColumn = (data: Pick<InputTypes, "boardColumnTitle">) => {
     const boardTitle = data.boardColumnTitle as string;
     saveMutation.mutate({
       payload: {

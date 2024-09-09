@@ -23,7 +23,7 @@ interface ContainerProps extends PropsWithChildren {
   callback: (
     e: React.FormEvent<TaskFormElement>,
     columnId: UniqueIdentifier
-  ) => Promise<void>;
+  ) => void;
   onDelete: () => void;
 }
 

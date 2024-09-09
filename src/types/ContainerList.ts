@@ -16,7 +16,7 @@ export interface ContainerListProps {
   addNewTask: (
     e: React.FormEvent<TaskFormElement>,
     columnId: UniqueIdentifier
-  ) => Promise<void>;
+  ) => void;
   deleteBoardContainer: (containerId: string) => Promise<void>;
   deleteTask: (taskId: string) => void;
   updateColumnMove: (payload: ColumnMovePayload) => void;
