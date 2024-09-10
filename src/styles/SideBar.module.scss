@@ -1,0 +1,60 @@
+@import "./base.scss";
+
+.wrapper {
+  display: grid;
+  grid-template-columns: 200px auto;
+  gap: 1rem;
+  padding: 0 3rem;
+  flex-grow: 1;
+
+  .header {
+    position: relative;
+
+    h3 {
+      margin: 0;
+      font-size: 1rem;
+    }
+
+    svg {
+      position: absolute;
+      left: -12%;
+      top: 12%;
+      width: 1.25rem;
+      height: 1.25rem;
+    }
+  }
+
+  ul {
+    padding-left: 0;
+    margin-top: 1rem;
+    font-size: $letter-small;
+
+    li {
+      margin-bottom: 0.25rem;
+    }
+
+    a {
+      color: #555;
+      text-transform: capitalize;
+
+      &:hover {
+        color: $cta-blue;
+      }
+    }
+  }
+
+  section:first-of-type {
+    display: flex;
+    flex-direction: column;
+    border-right: 1px solid $border-gray;
+    width: 200px;
+
+    div {
+      flex-grow: 1;
+    }
+  }
+
+  section {
+    padding-top: 1rem;
+  }
+}

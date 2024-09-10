@@ -55,7 +55,7 @@ export const Dashboard = () => {
         </Portal>
       )}
       <div>
-        <h1>Dashboard</h1>
+        <h1>Boards</h1>
       </div>
       <div>
         <ul className={styles.cardList}>

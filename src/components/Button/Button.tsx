@@ -9,6 +9,7 @@ interface ButtonProps extends PropsWithChildren {
   isDanger?: boolean;
   isSmall?: boolean;
   testId?: string;
+  disabled?: boolean;
 }
 
 export const Button = ({
@@ -19,6 +20,7 @@ export const Button = ({
   onClick,
   children,
   testId,
+  disabled,
 }: ButtonProps) => {
   const buttonStyle: Record<ButtonStyle, string> = {
     dashed: styles.dashed,
@@ -33,6 +35,7 @@ export const Button = ({
       } ${isDanger ? styles.danger : ""}`}
       type={type}
       data-testid={testId || ""}
+      disabled={disabled || false}
     >
       {children}
     </button>

@@ -23,7 +23,7 @@
     align-items: center;
 
     .taskButton {
-      padding: 0;
+      padding: 0.25rem;
       margin: 0;
       background-color: transparent;
       opacity: 0;
@@ -33,6 +33,7 @@
         border: none;
         outline: none;
         opacity: 1;
+        background-color: $cta-gray;
       }
     }
   }

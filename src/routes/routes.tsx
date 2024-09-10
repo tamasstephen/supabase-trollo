@@ -1,5 +1,5 @@
 import { createBrowserRouter, RouterProvider } from "react-router-dom";
-import { NavBar } from "@/components";
+import { NavBar, SideBar } from "@/components";
 import { Login, Dashboard, Board } from "@/pages";
 import { ProtectedRoute } from "./ProtectedRoute";
 
@@ -10,19 +10,25 @@ const router = createBrowserRouter([
     children: [
       {
         path: "/",
-        element: (
-          <ProtectedRoute>
-            <Dashboard />
-          </ProtectedRoute>
-        ),
-      },
-      {
-        path: "/board/:id",
-        element: (
-          <ProtectedRoute>
-            <Board />,
-          </ProtectedRoute>
-        ),
+        element: <SideBar />,
+        children: [
+          {
+            path: "/",
+            element: (
+              <ProtectedRoute>
+                <Dashboard />
+              </ProtectedRoute>
+            ),
+          },
+          {
+            path: "/board/:id",
+            element: (
+              <ProtectedRoute>
+                <Board />
+              </ProtectedRoute>
+            ),
+          },
+        ],
       },
       {
         path: "/login",
