@@ -1,6 +1,7 @@
 import { Dispatch, SetStateAction } from "react";
 import {
   ColumnMovePayload,
+  DbObject,
   DraggableBoardContainer,
   DraggableTask,
   UpdateBoardItemsArgs,
@@ -16,7 +17,7 @@ export interface ContainerListProps {
   addNewTask: (
     e: React.FormEvent<TaskFormElement>,
     columnId: UniqueIdentifier
-  ) => void;
+  ) => Promise<DbObject | undefined>;
   deleteBoardContainer: (containerId: string) => Promise<void>;
   deleteTask: (taskId: string) => void;
   updateColumnMove: (payload: ColumnMovePayload) => void;

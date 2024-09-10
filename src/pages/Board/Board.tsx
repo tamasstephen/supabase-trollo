@@ -98,7 +98,7 @@ export const Board = () => {
   );
   const activeCard = findActiveBoardListCard(activeId as string, boardColumns);
 
-  const addNewTask = (
+  const addNewTask = async (
     e: React.FormEvent<TaskFormElement>,
     columnId: UniqueIdentifier
   ) => {
@@ -107,7 +107,7 @@ export const Board = () => {
     const columnToEdit = boardContainers?.find((col) => col.id === columnId);
     if (!columnToEdit) return;
     const realColumnId = sanitizeDraggableId(columnId as string);
-    saveMutation.mutate({
+    const res = await saveMutation.mutateAsync({
       payload: {
         index: columnToEdit.items.length,
         title: boardTitle,
@@ -115,6 +115,7 @@ export const Board = () => {
       },
       tableName: TableNames.TASK,
     });
+    return res;
   };
 
   const addBoardColumn = (data: Pick<InputTypes, "boardColumnTitle">) => {

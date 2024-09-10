@@ -47,8 +47,8 @@ export const NavBar = () => {
   }, [supabase, navigate, setToSignedIn, setToSignedOut]);
 
   return (
-    <div>
-      <div className={styles.navWrapper} data-testid="navbar">
+    <div className={styles.pagewrapper}>
+      <section className={styles.navWrapper} data-testid="navbar">
         <div className={styles.navInnerWrapper}>
           <div
             role="link"
@@ -64,8 +64,10 @@ export const NavBar = () => {
             </button>
           )}
         </div>
-      </div>
-      <Outlet />
+      </section>
+      <section>
+        <Outlet />
+      </section>
     </div>
   );
 };

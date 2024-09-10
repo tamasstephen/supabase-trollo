@@ -15,6 +15,7 @@ import DeleteIcon from "@/assets/delete.svg";
 import { TaskFormElement } from "@/types/FormTypes";
 import { Button } from "../Button";
 import { ButtonStyle } from "@/constants";
+import { DbObject } from "@/types";
 
 interface ContainerProps extends PropsWithChildren {
   id: string | UniqueIdentifier;
@@ -23,7 +24,7 @@ interface ContainerProps extends PropsWithChildren {
   callback: (
     e: React.FormEvent<TaskFormElement>,
     columnId: UniqueIdentifier
-  ) => void;
+  ) => Promise<DbObject | undefined>;
   onDelete: () => void;
 }
 
@@ -51,10 +52,15 @@ export const BoardContainer = ({
   const textArea = useRef<HTMLTextAreaElement>(null);
   const submitButton = useRef<HTMLButtonElement>(null);
   const [showForm, setShowForm] = useState(false);
+  const [addTaskDisabled, setAddTaskDisabled] = useState(false);
 
-  const onSubmit = (event: FormEvent<TaskFormElement>) => {
+  const onSubmit = async (event: FormEvent<TaskFormElement>) => {
+    setAddTaskDisabled(true);
     event.preventDefault();
-    callback(event, id);
+    const res = await callback(event, id);
+    if (res) {
+      setAddTaskDisabled(false);
+    }
   };
 
   const handleKeydown = (e: KeyboardEvent) => {
@@ -136,6 +142,7 @@ export const BoardContainer = ({
           type="button"
           style={ButtonStyle.DASHED}
           onClick={() => setShowForm(true)}
+          disabled={addTaskDisabled}
         >
           <Plus />
           Add new task
